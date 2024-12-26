@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://88tjufil85s5"]
+[gd_scene load_steps=3 format=3 uid="uid://88tjufil85s5"]
 
 [ext_resource type="Script" path="res://MainScene/main_scene.gd" id="1_rs03n"]
+[ext_resource type="Texture2D" uid="uid://c3715o1xyqtw6" path="res://icon.svg" id="2_rx2d5"]
 
 [node name="MainScene" type="Node2D"]
 script = ExtResource("1_rs03n")
@@ -45,7 +46,16 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 placeholder_text = "input"
 
-[node name="TargetNode" type="Marker2D" parent="."]
+[node name="Target" type="Marker2D" parent="."]
+unique_name_in_owner = true
 position = Vector2(533, 74)
+
+[node name="Tree" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(533, 70)
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("2_rx2d5")
 
 [connection signal="button_down" from="UI/Control/Panel/CenterContainer/HBoxContainer/Button" to="." method="_on_button_button_down"]

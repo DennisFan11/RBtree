@@ -14,7 +14,3 @@ config/name="tree234"
 run/main_scene="res://MainScene/MainScene.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 config/icon="res://icon.svg"
-
-[autoload]
-
-MainScene="*res://MainScene/main_scene.gd"
