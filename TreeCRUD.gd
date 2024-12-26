@@ -18,6 +18,11 @@ func remove(root:TreeNode, remove_val:float)-> TreeNode:
 #endregion
 
 
+#dawdawd
+## TODO 實作2,3,4,樹
+
+
+
 func _make_treeNode()-> TreeNode:
 	var node = preload("res://treeNode/treeNode.tscn").instantiate()
 	MainScene.add_new_node(node)
