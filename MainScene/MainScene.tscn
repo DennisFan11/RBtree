@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://88tjufil85s5"]
+[gd_scene load_steps=2 format=3 uid="uid://88tjufil85s5"]
 
 [ext_resource type="Script" path="res://MainScene/main_scene.gd" id="1_rs03n"]
-[ext_resource type="Texture2D" uid="uid://c3715o1xyqtw6" path="res://icon.svg" id="2_rx2d5"]
 
 [node name="MainScene" type="Node2D"]
 script = ExtResource("1_rs03n")
@@ -15,6 +14,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="Panel" type="Panel" parent="UI/Control"]
 layout_mode = 0
@@ -46,16 +46,26 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 placeholder_text = "input"
 
-[node name="Target" type="Marker2D" parent="."]
+[node name="Messages" type="VBoxContainer" parent="UI/Control"]
 unique_name_in_owner = true
-position = Vector2(533, 74)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 903.0
+offset_top = 7.0
+offset_right = -9.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+alignment = 2
 
 [node name="Tree" type="Node2D" parent="."]
 unique_name_in_owner = true
 
-[node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(533, 70)
-scale = Vector2(0.2, 0.2)
-texture = ExtResource("2_rx2d5")
+[node name="Camera2D" type="Camera2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(153, 217)
 
 [connection signal="button_down" from="UI/Control/Panel/CenterContainer/HBoxContainer/Button" to="." method="_on_button_button_down"]

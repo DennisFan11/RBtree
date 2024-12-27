@@ -18,11 +18,6 @@ func remove(root:TreeNode, remove_val:float)-> TreeNode:
 #endregion
 
 
-#dawdawd
-## TODO 實作2,3,4,樹
-
-
-
 func _make_treeNode()-> TreeNode:
 	var node = preload("res://treeNode/treeNode.tscn").instantiate()
 	MainScene.add_new_node(node)
@@ -32,10 +27,10 @@ func _delete_treeNode(node:TreeNode):
 	node.queue_free()
 
 
-## TODO 實作2,3,4,樹
+## TODO 實作RB樹
 
 func _insert(node:TreeNode, val):
-	if node.val1 > val:
+	if node.val1 < val:
 		if node.R:
 			_insert(node.R, val)
 		else:
