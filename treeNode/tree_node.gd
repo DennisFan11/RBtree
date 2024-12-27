@@ -1,15 +1,18 @@
 class_name TreeNode extends Node2D
 enum {BLACK, RED, DOUBLE_BLACK}
 var color:int
-var val1:float:
+var val:float:
 	set(new):
 		$Panel/Label.text = str(new)
-		val1=new
+		val=new
+var P:TreeNode # 父節點 
 var L:TreeNode
 var R:TreeNode
 
+#region for insert
 
 
+#endregion
 
 
 #region 內部邏輯区域
@@ -41,10 +44,14 @@ func _process(delta: float) -> void:
 	if L:
 		_LL.points = [_get_l_point(), to_local(L._get_self_point())]
 		_LL.default_color = _color_map[L.color]
+	else:
+		_LL.points = []
 		
 	if R:
 		_RR.points = [_get_r_point(), to_local(R._get_self_point())]
 		_RR.default_color = _color_map[R.color]
+	else:
+		_RR.points = []
 
 #endregion
 
@@ -52,4 +59,4 @@ func _visible_update():
 	%TextureButton.disabled = !%TextureButton.is_hovered()
 
 func _on_texture_button_button_down() -> void:
-	MainScene.remove(val1)
+	MainScene.remove(val)
