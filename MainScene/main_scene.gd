@@ -116,22 +116,22 @@ func _message(str:String):
 func _on_ll_button_down() -> void:
 	for i in [6, 5, 3, 4, 2]: # LL 
 		_insert(i)
-	message("[color=yellow]Test Data: LL [/color]")
+	message("[color=green]Test Data: LL [/color]")
 
 func _on_lr_button_down() -> void:
 	for i in [5, 1, 3, 2, 4]: # LR
 		_insert(i)
-	message("[color=yellow]Test Data: LR [/color]")
+	message("[color=green]Test Data: LR [/color]")
 
 func _on_rl_button_down() -> void:
 	for i in [1, 5, 3, 4, 2]:
 		_insert(i)
-	message("[color=yellow]Test Data: RL [/color]")
+	message("[color=green]Test Data: RL [/color]")
 
 func _on_rr_button_down() -> void:
 	for i in [1, 2, 4, 3, 5]:
 		_insert(i)
-	message("[color=yellow]Test Data: RR [/color]")
+	message("[color=green]Test Data: RR [/color]")
 
 func _on_clear_button_button_down() -> void:
 	_root = null

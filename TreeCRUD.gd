@@ -11,11 +11,20 @@ func _make_treeNode(val)-> TreeNode: # NOTE 建立節點
 func _delete_treeNode(node:TreeNode): # NOTE 刪除節點
 	node.queue_free()
 func is_left_child(node:TreeNode)-> bool: # NOTE 是左節點
-	return (node.P and node.P.L == node)
+	if !node or !node.P: return false 
+	return (node and node.P and node.P.L == node)
 func is_right_child(node:TreeNode)-> bool: # NOTE 是右節點
-	return (node.P and node.P.R == node)
+	return (node and node.P and node.P.R == node)
 func get_neighbor(node:TreeNode)->TreeNode:
 	return node.R if is_left_child(node) else node.L
+func get_uncle(node:TreeNode)-> TreeNode: # NOTE 取得叔叔節點
+	if node.P and node.P.P:
+		if is_left_child(node.P):
+			return node.P.P.R
+		else:
+			return node.P.P.L
+	return null
+
 #endregion
 
 #region 

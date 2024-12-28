@@ -5,10 +5,20 @@ var val:float:
 	set(new):
 		$Panel/Label.text = str(new)
 		val=new
-var P:TreeNode # 父節點 
-var L:TreeNode
-var R:TreeNode
-
+var P:TreeNode: # 父節點
+	set(new):
+		P = new
+var L:TreeNode: # 節點
+	set(new):
+		L = new
+		#if new: new.P = self
+var R:TreeNode: # 節點
+	set(new):
+		R = new
+		#if new: new.P = self
+var PP:TreeNode:
+	get:
+		return P.P if P else null
 #region for insert
 
 
