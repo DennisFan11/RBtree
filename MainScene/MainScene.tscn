@@ -1,9 +1,63 @@
-[gd_scene load_steps=2 format=3 uid="uid://88tjufil85s5"]
+[gd_scene load_steps=3 format=3 uid="uid://88tjufil85s5"]
 
 [ext_resource type="Script" path="res://MainScene/main_scene.gd" id="1_rs03n"]
 
+[sub_resource type="GDScript" id="GDScript_xeml2"]
+resource_name = "Rot"
+script/source = "#@tool
+extends Control
+
+var _time:float = 0.0
+func _process(delta: float) -> void:
+	_time += delta
+	rotation = _time
+"
+
 [node name="MainScene" type="Node2D"]
 script = ExtResource("1_rs03n")
+metadata/_edit_vertical_guides_ = [576.0]
+
+[node name="BackGround" type="CanvasLayer" parent="."]
+layer = -1
+visible = false
+
+[node name="CenterContainer" type="CenterContainer" parent="BackGround"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Control" type="Control" parent="BackGround/CenterContainer"]
+z_as_relative = false
+layout_mode = 2
+script = SubResource("GDScript_xeml2")
+metadata/_edit_group_ = true
+metadata/_edit_lock_ = true
+
+[node name="ColorRect" type="ColorRect" parent="BackGround/CenterContainer/Control"]
+layout_mode = 0
+offset_top = -976.0
+offset_right = 1053.0
+color = Color(0.266667, 0.137255, 0.337255, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="BackGround/CenterContainer/Control"]
+layout_mode = 0
+offset_left = -1323.0
+offset_bottom = 824.0
+color = Color(0.266667, 0.137255, 0.337255, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="BackGround/CenterContainer/Control"]
+layout_mode = 0
+offset_left = -1387.0
+offset_top = -1213.0
+color = Color(0.141176, 0.0470588, 0.196078, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="BackGround/CenterContainer/Control"]
+layout_mode = 0
+offset_right = 1216.0
+offset_bottom = 1052.0
+color = Color(0.141176, 0.0470588, 0.196078, 1)
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -94,6 +148,38 @@ text = "RL Test"
 layout_mode = 2
 focus_mode = 0
 text = "RR Test"
+
+[node name="UndoRedoPanel" type="Panel" parent="UI/Control"]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 484.0
+offset_top = 557.0
+offset_right = -484.0
+offset_bottom = -36.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/Control/UndoRedoPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 17.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Button" type="Button" parent="UI/Control/UndoRedoPanel/HBoxContainer"]
+layout_mode = 2
+text = "UNDO"
+
+[node name="Label" type="Label" parent="UI/Control/UndoRedoPanel/HBoxContainer"]
+layout_mode = 2
+text = "| now |"
+
+[node name="Button2" type="Button" parent="UI/Control/UndoRedoPanel/HBoxContainer"]
+layout_mode = 2
+text = "REDO"
 
 [node name="Tree" type="Node2D" parent="."]
 unique_name_in_owner = true
