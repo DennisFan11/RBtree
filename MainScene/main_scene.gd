@@ -1,6 +1,11 @@
 class_name MainScene extends Node2D
 
 #region 外部接口
+
+func _ready() -> void:
+	_main_scene = self
+	_tree = %Tree
+
 static var _tree:Node2D
 static var _main_scene:MainScene
 
@@ -12,30 +17,8 @@ static func remove(val:float):
 
 static func message(bbtext:String)-> void:
 	_main_scene._message(bbtext)
+
 #endregion
-
-
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("Enter"):
-		_on_button_button_down()
-	elif event.is_action_pressed("zoom_in"):
-		%Camera2D.zoom *= 1.1
-	elif event.is_action_pressed("zoom_out"):
-		%Camera2D.zoom *= 0.9
-	elif event.is_action_pressed("right_click"):
-		_on_back_to_root_button_down()
-
-func _on_button_button_down() -> void: ## insert
-	if %TextEdit.text == "":
-		_insert(randi_range(0, 999))
-		return 
-	var val:float = %TextEdit.text.to_float()
-	%TextEdit.text = ""
-	_insert(val)
-
-func _ready() -> void:
-	_main_scene = self
-	_tree = %Tree
 
 #region 樹操作
 var _root :TreeNode
@@ -117,6 +100,25 @@ func _message(str:String):
 #endregion
 
 #region GUI event
+
+func _on_button_button_down() -> void: ## insert
+	if %TextEdit.text == "":
+		_insert(randi_range(0, 999))
+		return 
+	var val:float = %TextEdit.text.to_float()
+	%TextEdit.text = ""
+	_insert(val)
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("Enter"):
+		_on_button_button_down()
+	elif event.is_action_pressed("zoom_in"):
+		%Camera2D.zoom *= 1.1
+	elif event.is_action_pressed("zoom_out"):
+		%Camera2D.zoom *= 0.9
+	elif event.is_action_pressed("right_click"):
+		_on_back_to_root_button_down()
+
 func _on_ll_button_down() -> void:
 	for i in [6, 7, 4, 5, 2, 3, 1]: # LL 
 		_insert(i,true)
@@ -157,9 +159,29 @@ func _on_random_1000_button_button_down() -> void:
 		_insert(randi_range(0, 1000), true)
 	_message("[color=green]Test Data: RR [/color]")
 	_message("[color=green]===== Insert Finish =====[/color]")
-#endregion
-
 
 func _on_back_to_root_button_down() -> void:
 	if _root:
 		_camera_pos = _root.global_position + Vector2(0.0, 150.0)
+
+#endregion
+
+#region UndoRedo WARNING 未完成功能
+#static var _u:UndoRedo 
+#static func add_do(u:UndoRedo, root:TreeNode):
+	#_u = u
+	#if root:
+		#if root.L:
+			#add_do(u, root.L)
+		#if root.R:
+			#add_do(u, root.R)
+		#root.do(u)
+#static func add_undo(u:UndoRedo, root:TreeNode):
+	#_u = u
+	#if root:
+		#if root.L:
+			#add_undo(u, root.L)
+		#if root.R:
+			#add_undo(u, root.R)
+		#root.undo(u)
+#endregion

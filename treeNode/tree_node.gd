@@ -19,13 +19,23 @@ var R:TreeNode: # 節點
 var PP:TreeNode:
 	get:
 		return P.P if P else null
-#region for insert
 
-
-#endregion
 
 
 #region 內部邏輯区域
+#func do(undoRedo:UndoRedo): # WARNING 未完成功能
+	#undoRedo.add_do_property(self, "val", val)
+	#undoRedo.add_do_property(self, "color", color)
+	#undoRedo.add_do_property(self, "P", P)
+	#undoRedo.add_do_property(self, "R", R)
+	#undoRedo.add_do_property(self, "L", L)
+#func undo(undoRedo:UndoRedo):
+	#undoRedo.add_undo_property(self, "val", val)
+	#undoRedo.add_undo_property(self, "color", color)
+	#undoRedo.add_undo_property(self, "P", P)
+	#undoRedo.add_undo_property(self, "R", R)
+	#undoRedo.add_undo_property(self, "L", L)
+
 
 func _get_self_point()-> Vector2: # 獲取節點位置
 	return %SelfPoint.global_position
@@ -33,7 +43,6 @@ func _get_l_point()-> Vector2:
 	return %LPoint.position
 func _get_r_point()-> Vector2:
 	return %RPoint.position
-
 
 var _deepth:int
 var _xid:int
@@ -63,10 +72,10 @@ func _process(delta: float) -> void:
 	else:
 		_RR.points = []
 
-#endregion
-
 func _visible_update():
 	%TextureButton.disabled = !%TextureButton.is_hovered()
 
 func _on_texture_button_button_down() -> void:
 	MainScene.remove(val)
+
+#endregion

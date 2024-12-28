@@ -8,8 +8,10 @@ func _make_treeNode(val)-> TreeNode: # NOTE 建立節點
 	node.val = val
 	node.color = RED # 初始化為red
 	return node
+
 func _delete_treeNode(node:TreeNode): # NOTE 刪除節點
 	node.queue_free()
+
 func is_left_child(node:TreeNode)-> bool: # NOTE 是左節點
 	if !node or !node.P: return false 
 	return (node and node.P and node.P.L == node)
@@ -27,16 +29,6 @@ func get_uncle(node:TreeNode)-> TreeNode: # NOTE 取得叔叔節點
 
 #endregion
 
-#region 
-
-## 回傳new root
-#func insert(root:TreeNode, insert_val:float)-> TreeNode:
-	#return _insert.insert(root, insert_val)
-#
-### 回傳new root
-#func remove(root:TreeNode, remove_val:float)-> TreeNode:
-	#return _remove.remove(root, remove_val)
-#endregion
 
 
 #

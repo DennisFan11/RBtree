@@ -19,7 +19,6 @@ metadata/_edit_vertical_guides_ = [576.0]
 
 [node name="BackGround" type="CanvasLayer" parent="."]
 layer = -1
-visible = false
 
 [node name="CenterContainer" type="CenterContainer" parent="BackGround"]
 anchors_preset = 15
@@ -163,6 +162,7 @@ layout_mode = 2
 text = "x100"
 
 [node name="UndoRedoPanel" type="Panel" parent="UI/Control"]
+visible = false
 layout_mode = 2
 anchor_right = 1.0
 anchor_bottom = 1.0
