@@ -22,10 +22,12 @@ func _input(event: InputEvent) -> void:
 		%Camera2D.zoom *= 1.1
 	elif event.is_action_pressed("zoom_out"):
 		%Camera2D.zoom *= 0.9
+	elif event.is_action_pressed("right_click"):
+		_on_back_to_root_button_down()
 
 func _on_button_button_down() -> void: ## insert
 	if %TextEdit.text == "":
-		_insert(randi_range(0, 99))
+		_insert(randi_range(0, 999))
 		return 
 	var val:float = %TextEdit.text.to_float()
 	%TextEdit.text = ""
@@ -143,4 +145,21 @@ func _on_clear_button_button_down() -> void:
 	_root = null
 	for i in %Tree.get_children():
 		i.queue_free()
+
+func _on_random_100_button_button_down() -> void:
+	for i in range(10):
+		_insert(randi_range(0, 1000), true)
+	_message("[color=green]Test Data: RR [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
+
+func _on_random_1000_button_button_down() -> void:
+	for i in range(100):
+		_insert(randi_range(0, 1000), true)
+	_message("[color=green]Test Data: RR [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
 #endregion
+
+
+func _on_back_to_root_button_down() -> void:
+	if _root:
+		_camera_pos = _root.global_position + Vector2(0.0, 150.0)

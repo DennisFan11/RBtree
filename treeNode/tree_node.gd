@@ -45,7 +45,7 @@ var _color_map = {
 	RED:Color.RED,
 	DOUBLE_BLACK:Color.GRAY
 }
-const H_SPACE = 60.0
+const H_SPACE = 30.0 # 60
 const V_SPACE = 60.0
 const LERP_SPEED = 5.5
 func _process(delta: float) -> void:
