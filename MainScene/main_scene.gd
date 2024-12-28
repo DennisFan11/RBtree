@@ -41,10 +41,12 @@ var _root :TreeNode
 var _tree_insert:TreeInsert = TreeInsert.new()
 var _tree_remove:TreeRemove = TreeRemove.new()
 
-func _insert(val:float):
+func _insert(val:float, batch:bool=false):
 	_message("[color=green]Insert "+str(val)+"[/color]")
 	_root = _tree_insert.insert(_root, val)
 	_tree_update()
+	if !batch:
+		_message("[color=green]===== Insert Finish =====[/color]")
 
 func _remove(val:float):
 	_message("[color=red]Remove "+str(val)+"[/color]")
@@ -114,24 +116,28 @@ func _message(str:String):
 
 #region GUI event
 func _on_ll_button_down() -> void:
-	for i in [6, 5, 3, 4, 2]: # LL 
-		_insert(i)
-	message("[color=green]Test Data: LL [/color]")
+	for i in [6, 7, 4, 5, 2, 3, 1]: # LL 
+		_insert(i,true)
+	_message("[color=green]Test Data: LL [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
 
 func _on_lr_button_down() -> void:
-	for i in [5, 1, 3, 2, 4]: # LR
-		_insert(i)
-	message("[color=green]Test Data: LR [/color]")
+	for i in [6, 2, 7, 1, 4, 3, 5]: # LR
+		_insert(i,true)
+	_message("[color=green]Test Data: LR [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
 
 func _on_rl_button_down() -> void:
-	for i in [1, 5, 3, 4, 2]:
-		_insert(i)
-	message("[color=green]Test Data: RL [/color]")
+	for i in [2, 1, 6, 4, 7, 3, 5]:
+		_insert(i,true)
+	_message("[color=green]Test Data: RL [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
 
 func _on_rr_button_down() -> void:
-	for i in [1, 2, 4, 3, 5]:
-		_insert(i)
-	message("[color=green]Test Data: RR [/color]")
+	for i in [2, 1, 4, 3, 6, 5, 7]:
+		_insert(i,true)
+	_message("[color=green]Test Data: RR [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
 
 func _on_clear_button_button_down() -> void:
 	_root = null

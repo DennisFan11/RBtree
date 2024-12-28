@@ -81,7 +81,7 @@ func _case4(node:TreeNode):
 
 
 func rotL(P:TreeNode):
-	MainScene.message("[color=yellow]L ![/color]")
+	MainScene.message("[color=yellow]L rotate ![/color]")
 	var gp:TreeNode = P.PP
 	var fa:TreeNode = P.P
 	var y:TreeNode = P.L
