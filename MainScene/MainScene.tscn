@@ -161,6 +161,10 @@ text = "x10"
 layout_mode = 2
 text = "x100"
 
+[node name="TestButton" type="Button" parent="UI/Control/HBoxContainer"]
+layout_mode = 2
+text = "Test"
+
 [node name="UndoRedoPanel" type="Panel" parent="UI/Control"]
 visible = false
 layout_mode = 2
@@ -254,4 +258,5 @@ unique_name_in_owner = true
 [connection signal="button_down" from="UI/Control/HBoxContainer/RR" to="." method="_on_rr_button_down"]
 [connection signal="button_down" from="UI/Control/HBoxContainer/Random100Button" to="." method="_on_random_100_button_button_down"]
 [connection signal="button_down" from="UI/Control/HBoxContainer/Random1000Button" to="." method="_on_random_1000_button_button_down"]
+[connection signal="button_down" from="UI/Control/HBoxContainer/TestButton" to="." method="_on_test_button_button_down"]
 [connection signal="button_down" from="UI/Control/ViewPanel/VBoxContainer/BackToRoot" to="." method="_on_back_to_root_button_down"]
