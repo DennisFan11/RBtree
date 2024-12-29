@@ -1,48 +1,76 @@
-[gd_scene load_steps=2 format=3 uid="uid://g7fsfhix2s5u"]
+[gd_scene load_steps=4 format=3 uid="uid://g7fsfhix2s5u"]
 
 [ext_resource type="Script" path="res://treeNode/tree_node.gd" id="1_q8htm"]
+[ext_resource type="Texture2D" uid="uid://c6m6g2xjiufjp" path="res://treeNode/delete.png" id="2_t0n3q"]
+[ext_resource type="Texture2D" uid="uid://bo3so0d4oxou6" path="res://treeNode/delete_n.png" id="3_gw3ww"]
 
 [node name="TreeNode" type="Node2D"]
 script = ExtResource("1_q8htm")
 
+[node name="LineL" type="Line2D" parent="."]
+unique_name_in_owner = true
+begin_cap_mode = 2
+end_cap_mode = 2
+
+[node name="LineR" type="Line2D" parent="."]
+unique_name_in_owner = true
+begin_cap_mode = 2
+end_cap_mode = 2
+
 [node name="Panel" type="Panel" parent="."]
-offset_left = -68.0
+unique_name_in_owner = true
+z_index = 5
+offset_left = -25.0
 offset_top = -19.0
-offset_right = 69.0
+offset_right = 26.0
 offset_bottom = 21.0
 
-[node name="Marker2D" type="Marker2D" parent="Panel"]
-position = Vector2(0, 40)
-
-[node name="Marker2D2" type="Marker2D" parent="Panel"]
-position = Vector2(49, 41)
-
-[node name="Marker2D3" type="Marker2D" parent="Panel"]
-position = Vector2(90, 40)
-
-[node name="Marker2D4" type="Marker2D" parent="Panel"]
-position = Vector2(137, 40)
-
 [node name="Label" type="Label" parent="Panel"]
-layout_mode = 2
-offset_left = 15.0
-offset_top = 7.0
-offset_right = 43.0
-offset_bottom = 30.0
-text = "300"
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "null"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Label2" type="Label" parent="Panel"]
-layout_mode = 2
-offset_left = 54.0
-offset_top = 7.0
-offset_right = 82.0
-offset_bottom = 30.0
-text = "300"
+[node name="TextureButton" type="TextureButton" parent="Panel"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 9.0
+offset_top = 3.0
+offset_right = -9.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+texture_normal = ExtResource("2_t0n3q")
+texture_pressed = ExtResource("2_t0n3q")
+texture_hover = ExtResource("2_t0n3q")
+texture_disabled = ExtResource("3_gw3ww")
+texture_focused = ExtResource("2_t0n3q")
+stretch_mode = 4
 
-[node name="Label3" type="Label" parent="Panel"]
-layout_mode = 2
-offset_left = 99.0
-offset_top = 7.0
-offset_right = 127.0
-offset_bottom = 30.0
-text = "300"
+[node name="LPoint" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(-25, 21)
+
+[node name="RPoint" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(26, 21)
+
+[node name="SelfPoint" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -19)
+
+[connection signal="mouse_entered" from="Panel" to="." method="_on_panel_mouse_entered"]
+[connection signal="mouse_exited" from="Panel" to="." method="_on_panel_mouse_exited"]
+[connection signal="button_down" from="Panel/TextureButton" to="." method="_on_texture_button_button_down"]
+[connection signal="mouse_entered" from="Panel/TextureButton" to="." method="_on_texture_button_mouse_entered"]
+[connection signal="mouse_exited" from="Panel/TextureButton" to="." method="_on_texture_button_mouse_exited"]

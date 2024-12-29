@@ -1,12 +1,81 @@
 class_name TreeNode extends Node2D
-var val1:float
-var val2:float
-var val3:float
-var L:TreeNode
-var LC:TreeNode
-var RC:TreeNode
-var R:TreeNode
+enum {BLACK, RED, DOUBLE_BLACK}
+var color:int
+var val:float:
+	set(new):
+		$Panel/Label.text = str(new)
+		val=new
+var P:TreeNode: # 父節點
+	set(new):
+		P = new
+var L:TreeNode: # 節點
+	set(new):
+		L = new
+		#if new: new.P = self
+var R:TreeNode: # 節點
+	set(new):
+		R = new
+		#if new: new.P = self
+var PP:TreeNode:
+	get:
+		return P.P if P else null
 
 
-func get_tree_nodes()-> Array[TreeNode]:
-	return [L, LC, RC, R]
+
+#region 內部邏輯区域
+#func do(undoRedo:UndoRedo): # WARNING 未完成功能
+	#undoRedo.add_do_property(self, "val", val)
+	#undoRedo.add_do_property(self, "color", color)
+	#undoRedo.add_do_property(self, "P", P)
+	#undoRedo.add_do_property(self, "R", R)
+	#undoRedo.add_do_property(self, "L", L)
+#func undo(undoRedo:UndoRedo):
+	#undoRedo.add_undo_property(self, "val", val)
+	#undoRedo.add_undo_property(self, "color", color)
+	#undoRedo.add_undo_property(self, "P", P)
+	#undoRedo.add_undo_property(self, "R", R)
+	#undoRedo.add_undo_property(self, "L", L)
+
+
+func _get_self_point()-> Vector2: # 獲取節點位置
+	return %SelfPoint.global_position
+func _get_l_point()-> Vector2:
+	return %LPoint.position
+func _get_r_point()-> Vector2:
+	return %RPoint.position
+
+var _deepth:int
+var _xid:int
+
+@onready var _LL:Line2D = %LineL
+@onready var _RR:Line2D = %LineR
+var _color_map = {
+	BLACK:Color.BLACK,
+	RED:Color.RED,
+	DOUBLE_BLACK:Color.GRAY
+}
+const H_SPACE = 30.0 # 60
+const V_SPACE = 60.0
+const LERP_SPEED = 5.5
+func _process(delta: float) -> void:
+	_visible_update()
+	position = position.lerp( Vector2( H_SPACE*_xid, V_SPACE*_deepth ), LERP_SPEED*delta )
+	if L:
+		_LL.points = [_get_l_point(), to_local(L._get_self_point())]
+		_LL.default_color = _color_map[L.color]
+	else:
+		_LL.points = []
+		
+	if R:
+		_RR.points = [_get_r_point(), to_local(R._get_self_point())]
+		_RR.default_color = _color_map[R.color]
+	else:
+		_RR.points = []
+
+func _visible_update():
+	%TextureButton.disabled = !%TextureButton.is_hovered()
+
+func _on_texture_button_button_down() -> void:
+	MainScene.remove(val)
+
+#endregion

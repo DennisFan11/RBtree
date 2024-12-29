@@ -1,37 +1,192 @@
-extends Node2D
+class_name MainScene extends Node2D
 
-func add_new_node(node:TreeNode):
-	$TargetNode.add_child(node)
-	
+#region 外部接口
+
+func _ready() -> void:
+	_main_scene = self
+	_tree = %Tree
+
+static var _tree:Node2D
+static var _main_scene:MainScene
+
+static func add_new_node(node:TreeNode)-> void: ## 新增節點
+	_tree.add_child(node)
+
+static func remove(val:float):
+	_main_scene._remove(val)
+
+static func message(bbtext:String)-> void:
+	_main_scene._message(bbtext)
+
+#endregion
+
+#region 樹操作
 var _root :TreeNode
-@onready var treeCRUD = TreeCRUD.new()
 
-func _on_button_button_down() -> void:
-	var val:float = %TextEdit.text.to_float()
-	_root = treeCRUD.insert(_root, val)
+var _tree_insert:TreeInsert = TreeInsert.new()
+var _tree_remove:TreeRemove = TreeRemove.new()
 
+func _insert(val:float, batch:bool=false):
+	_message("[color=green]Insert "+str(val)+"[/color]")
+	_root = _tree_insert.insert(_root, val)
+	_tree_update()
+	if !batch:
+		_message("[color=green]===== Insert Finish =====[/color]")
 
+func _remove(val:float):
+	_message("[color=red]Remove "+str(val)+"[/color]")
+	_root = _tree_remove.remove(_root, val)
+	_tree_update()
+#endregion
 
+#region 位置更新相關
+func _tree_update():
+	__xid = 0
+	_deep_count(_root, 0)
 
-func _process(delta: float) -> void:
-	_update(_root, $TargetNode.position)
-
-const LEN:float = 30.0
-func _update(node:TreeNode, pos:Vector2):
+var __xid:int
+func _deep_count(node:TreeNode, last_deepth:int)-> int: ## 設定深度, xid
 	if !node:
+		return last_deepth
+	var curr_deepth = last_deepth+1
+	node._deepth = curr_deepth
+	#print(node.val)
+	if node.L:
+		_deep_count(node.L, curr_deepth)
+	
+	__xid += 1
+	node._xid = __xid
+	
+	if node.R:
+		_deep_count(node.R, curr_deepth)
+	return curr_deepth
+
+#endregion
+
+#region 攝影機
+var _camera_pos  = Vector2.ZERO
+const CAMERA_MOVE_SPEED:float = 500.0
+const CAMERA_LERP_SPEED:float = 8.0
+func _process(delta: float) -> void:
+	_camera_pos += Input.get_vector("A", "D", "W", "S") * CAMERA_MOVE_SPEED * delta
+	%Camera2D.offset = %Camera2D.offset.lerp(_camera_pos, CAMERA_LERP_SPEED * delta)
+#endregion
+
+#region Global message
+var _message_arr = []
+const MESSAGE_LIVE_TIME:float = 10.0
+func _message(str:String):
+	print_rich(str)
+	
+	var rich = RichTextLabel.new()
+	rich.custom_minimum_size.y = 27.0
+	rich.bbcode_enabled = true
+	rich.text = str
+	rich.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	%Messages.add_child(rich)
+	
+	var tween = get_tree().create_tween()
+	tween.tween_property(rich, "modulate", Color(1.0, 1.0, 1.0, 0.0), MESSAGE_LIVE_TIME)\
+		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
+	tween.tween_callback(_message_arr.erase.bind(rich))
+	tween.tween_callback(rich.queue_free)
+	
+	
+	_message_arr.append(rich)
+	if _message_arr.size() > 15:
+		var node = _message_arr.pop_front()
+		node.queue_free()
+
+#endregion
+
+#region GUI event
+
+func _on_button_button_down() -> void: ## insert
+	if %TextEdit.text == "":
+		_insert(randi_range(0, 999))
 		return 
-	node.position = (node.position - pos).normalized()*LEN+pos
-	for c in node.get_tree_nodes():
-		_update(c, node.position)
+	var val:float = %TextEdit.text.to_float()
+	%TextEdit.text = ""
+	_insert(val)
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("Enter"):
+		_on_button_button_down()
+	elif event.is_action_pressed("zoom_in"):
+		%Camera2D.zoom *= 1.1
+	elif event.is_action_pressed("zoom_out"):
+		%Camera2D.zoom *= 0.9
+	elif event.is_action_pressed("right_click"):
+		_on_back_to_root_button_down()
+
+func _on_ll_button_down() -> void:
+	for i in [6, 7, 4, 5, 2, 3, 1]: # LL 
+		_insert(i,true)
+	_message("[color=green]Test Data: LL [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
+
+func _on_lr_button_down() -> void:
+	for i in [6, 2, 7, 1, 4, 3, 5]: # LR
+		_insert(i,true)
+	_message("[color=green]Test Data: LR [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
+
+func _on_rl_button_down() -> void:
+	for i in [2, 1, 6, 4, 7, 3, 5]:
+		_insert(i,true)
+	_message("[color=green]Test Data: RL [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
+
+func _on_rr_button_down() -> void:
+	for i in [2, 1, 4, 3, 6, 5, 7]:
+		_insert(i,true)
+	_message("[color=green]Test Data: RR [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
+
+func _on_clear_button_button_down() -> void:
+	_root = null
+	for i in %Tree.get_children():
+		i.queue_free()
+
+func _on_random_100_button_button_down() -> void:
+	for i in range(10):
+		_insert(randi_range(0, 1000), true)
+	_message("[color=green]Test Data: RR [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
+
+func _on_random_1000_button_button_down() -> void:
+	for i in range(100):
+		_insert(randi_range(0, 1000), true)
+	_message("[color=green]Test Data: RR [/color]")
+	_message("[color=green]===== Insert Finish =====[/color]")
+
+func _on_back_to_root_button_down() -> void:
+	if _root:
+		_camera_pos = _root.global_position + Vector2(0.0, 150.0)
+
+#endregion
+
+#region UndoRedo WARNING 未完成功能
+#static var _u:UndoRedo 
+#static func add_do(u:UndoRedo, root:TreeNode):
+	#_u = u
+	#if root:
+		#if root.L:
+			#add_do(u, root.L)
+		#if root.R:
+			#add_do(u, root.R)
+		#root.do(u)
+#static func add_undo(u:UndoRedo, root:TreeNode):
+	#_u = u
+	#if root:
+		#if root.L:
+			#add_undo(u, root.L)
+		#if root.R:
+			#add_undo(u, root.R)
+		#root.undo(u)
+#endregion
 
 
-
-
-
-
-
-
-
-
-
-#
+func _on_test_button_button_down() -> void:
+	for i in range(100):
+		_insert(i, true)
