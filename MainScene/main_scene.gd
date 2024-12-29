@@ -185,3 +185,8 @@ func _on_back_to_root_button_down() -> void:
 			#add_undo(u, root.R)
 		#root.undo(u)
 #endregion
+
+
+func _on_test_button_button_down() -> void:
+	for i in range(100):
+		_insert(i, true)
