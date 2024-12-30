@@ -29,21 +29,50 @@ func check(node:TreeNode) -> TreeNode:
 		return null  # 該子樹變為空
 	else:  # 有左右子節點
 		var successor:TreeNode
-		if laynL(node.L) < laynR(node.R):
+		if laynL(node.L) == -2:
+			successor = _find_minR(node.R)
+			node.val = successor.val  # 替換當前節點的值
+			node.R = _remove_BST(node.R, successor.val)  # 刪除繼任節點
+		elif laynR(node.R) == -2:
 			successor = _find_minL(node.L)
 			node.val = successor.val  # 替換當前節點的值
 			node.L = _remove_BST(node.L, successor.val)  # 刪除繼任節點
+		elif laynL(node.L) < laynR(node.R):
+			successor = _find_minL(node.L)
+			node.val = successor.val  # 替換當前節點的值
+			node.L = _remove_BST(node.L, successor.val)  # 刪除繼任節點
+			print(node.val)
 		else:
 			successor = _find_minR(node.R)
 			node.val = successor.val  # 替換當前節點的值
 			node.R = _remove_BST(node.R, successor.val)  # 刪除繼任節點
+			print(node.val)
 		return node  # 返回當前節點
 
 func re(node:TreeNode):
 	if node.color == RED:
 		_delete_treeNode(node)
+	elif !node.P and !node.L and !node.R:
+		_delete_treeNode(node)
 	else:
-		pass
+		if !sibling(node):
+			if node.P.color == RED:
+				node.P.color = BLACK
+			else:
+				node.P.color = BLACK
+			_delete_treeNode(node)
+		elif sibling(node).color == BLACK:
+			if (!sibling(node).L and !sibling(node).R) or (sibling(node).L.color == BLACK and sibling(node).R.color == BLACK):
+				if node.P.color == RED:
+					node.P.color = BLACK
+				else:
+					node.P.color = BLACK
+					if node.P.P:
+						sibling(node.P).color = RED
+				sibling(node).color = RED
+			else:
+				pass
+		_delete_treeNode(node)
 		
 
 func _find_minR(node:TreeNode) -> TreeNode:
@@ -59,7 +88,7 @@ func _find_minL(node:TreeNode) -> TreeNode:
 func laynR(node:TreeNode) -> int:
 	var Rn:int = -1
 	if node == null:
-		return 0;
+		return -2;
 	while node.L != null:
 		Rn += 1
 		node = node.L
@@ -70,7 +99,7 @@ func laynR(node:TreeNode) -> int:
 func laynL(node:TreeNode) -> int:
 	var Ln:int = -1
 	if node == null:
-		return 0;
+		return -2;
 	while node.R != null:
 		Ln += 1
 		node = node.R
@@ -123,3 +152,9 @@ func rotR(P:TreeNode):
 	
 	if _root == fa:
 		_root = P
+		
+func sibling(node:TreeNode) -> TreeNode:
+	if node == node.P.L:
+		return node.P.R
+	else:
+		return node.P.L
