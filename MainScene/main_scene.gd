@@ -65,7 +65,7 @@ func _deep_count(node:TreeNode, last_deepth:int)-> int: ## 設定深度, xid
 
 #region 攝影機
 var _camera_pos  = Vector2.ZERO
-const CAMERA_MOVE_SPEED:float = 500.0
+var CAMERA_MOVE_SPEED:float = 500.0
 const CAMERA_LERP_SPEED:float = 8.0
 func _process(delta: float) -> void:
 	_camera_pos += Input.get_vector("A", "D", "W", "S") * CAMERA_MOVE_SPEED * delta
@@ -164,6 +164,12 @@ func _on_back_to_root_button_down() -> void:
 	if _root:
 		_camera_pos = _root.global_position + Vector2(0.0, 150.0)
 
+func _on_test_button_button_down() -> void:
+	for i in range(100):
+		_insert(i, true)
+	
+func _on_h_slider_value_changed(value: float) -> void:
+	CAMERA_MOVE_SPEED = value
 #endregion
 
 #region UndoRedo WARNING 未完成功能
@@ -185,8 +191,3 @@ func _on_back_to_root_button_down() -> void:
 			#add_undo(u, root.R)
 		#root.undo(u)
 #endregion
-
-
-func _on_test_button_button_down() -> void:
-	for i in range(100):
-		_insert(i, true)
