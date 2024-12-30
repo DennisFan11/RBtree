@@ -41,6 +41,7 @@ func re(node:TreeNode):
 	if node.color == RED:
 		_delete_treeNode(node)
 	else:
+		pass
 		
 
 func _find_minR(node:TreeNode) -> TreeNode:
