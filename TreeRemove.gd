@@ -1,6 +1,7 @@
 class_name TreeRemove extends TreeCRUD
 
 static var _root:TreeNode
+var _insert_instance:TreeInsert = TreeInsert.new()
 
 ## interface NOTE 函數簽名不允許更動
 func remove(root:TreeNode, remove_val:float) -> TreeNode:
@@ -8,6 +9,7 @@ func remove(root:TreeNode, remove_val:float) -> TreeNode:
 
 
 func _remove_BST(node:TreeNode, val:float) -> TreeNode: # TODO BST的remove只充當佔位符
+	_insert_instance.dr(node)
 	if node == null:
 		return null
 	if val == node.val:
