@@ -16,14 +16,14 @@ func _insert_BST(node:TreeNode, val:float) -> TreeNode:
 		_root = new_node
 		return
 		
-	if node.R and node.L:
-		if node.R.color == RED and node.L.color == RED:
-			node.R.color = BLACK
-			node.L.color = BLACK
-			if node.P:
-				node.color = RED
-				print(node.val)
-				_case2(node)
+	#if node.R and node.L:
+		#if node.R.color == RED and node.L.color == RED:
+			#node.R.color = BLACK
+			#node.L.color = BLACK
+			#if node.P:
+				#node.color = RED
+				#_case2(node)
+	dr(node)
 	
 	if val < node.val:
 		if node.L == null:
@@ -40,6 +40,15 @@ func _insert_BST(node:TreeNode, val:float) -> TreeNode:
 		else:
 			_insert_BST(node.R, val)
 	return
+
+func dr(node:TreeNode):
+	if node.R and node.L:
+		if node.R.color == RED and node.L.color == RED:
+			node.R.color = BLACK
+			node.L.color = BLACK
+			if node.P:
+				node.color = RED
+				_case2(node)
 
 func _fix_insert(node:TreeNode)-> void:
 	_case1(node)
