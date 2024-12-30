@@ -23,50 +23,56 @@ func _remove_BST(node:TreeNode, val:float) -> TreeNode: # TODO BST的remove只�
 
 func check(node:TreeNode) -> TreeNode:
 	if !node.L and !node.R:  # 葉節點，直接刪除
-		_delete_treeNode(node)
+		re(node)
 		return null  # 該子樹變為空
-	elif node.L and !node.R:  # 僅有左子節點
-		node.L.P = node.P  # 更新子節點的父節點
-		_delete_treeNode(node)
-		return node.L  # 返回新的子樹根
-	elif !node.L and node.R:  # 僅有右子節點
-		node.R.P = node.P  # 更新子節點的父節點
-		_delete_treeNode(node)
-		return node.R  # 返回新的子樹根
 	else:  # 有左右子節點
 		var successor:TreeNode
 		if laynL(node.L) < laynR(node.R):
 			successor = _find_minL(node.L)
+			node.val = successor.val  # 替換當前節點的值
+			node.L = _remove_BST(node.L, successor.val)  # 刪除繼任節點
 		else:
 			successor = _find_minR(node.R)
-		
-		node.val = successor.val  # 替換當前節點的值
-		node.R = _remove_BST(node.R, successor.val)  # 刪除繼任節點
+			node.val = successor.val  # 替換當前節點的值
+			node.R = _remove_BST(node.R, successor.val)  # 刪除繼任節點
 		return node  # 返回當前節點
 
+func re(node:TreeNode):
+	if node.color == RED:
+		_delete_treeNode(node)
+	else:
+		
 
 func _find_minR(node:TreeNode) -> TreeNode:
-	while node.L:
+	while node.L != null:
 		node = node.L
 	return node
 	
 func _find_minL(node:TreeNode) -> TreeNode:
-	while node.R:
+	while node.R != null:
 		node = node.R
 	return node
 	
 func laynR(node:TreeNode) -> int:
-	var Rn:int = 0
-	while node.L:
+	var Rn:int = -1
+	if node == null:
+		return 0;
+	while node.L != null:
 		Rn += 1
 		node = node.L
+	if node.R:
+		return Rn + 1
 	return Rn
 
 func laynL(node:TreeNode) -> int:
-	var Ln:int = 0
-	while node.R:
+	var Ln:int = -1
+	if node == null:
+		return 0;
+	while node.R != null:
 		Ln += 1
 		node = node.R
+	if node.L:
+		return Ln + 1
 	return Ln
 
 func rotL(P:TreeNode):
