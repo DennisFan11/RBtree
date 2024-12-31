@@ -24,7 +24,7 @@ func _remove_BST(node:TreeNode, val:float) -> TreeNode: # TODO BST的remove只�
 
 
 func check(node:TreeNode) -> TreeNode:
-	if !node.L and !node.R:  # 葉節點，直接刪除
+	if !child(node):  # 葉節點，直接刪除
 		re(node)
 		return null  # 該子樹變為空
 	else:  # 有左右子節點
@@ -50,28 +50,46 @@ func check(node:TreeNode) -> TreeNode:
 		return node  # 返回當前節點
 
 func re(node:TreeNode):
-	if node.color == RED:
+	if node.color == RED: #紅的直接刪除
 		_delete_treeNode(node)
-	elif !node.P and !node.L and !node.R:
+	elif !node.P and !child(node): #只有根節點的情況直接刪除
 		_delete_treeNode(node)
-	else:
-		if !sibling(node):
-			if node.P.color == RED:
+	else: #不是紅的也就是黑的
+		if !sibling(node): #黑的沒有兄弟
+			if node.P.color == RED: #爸爸是紅色的
+				node.P.color = BLACK 
+			else: #爸爸是黑色的
 				node.P.color = BLACK
-			else:
-				node.P.color = BLACK
+				#if sibling(node.P): #爸爸有兄弟
+					#sibling(node.P).color = RED
 			_delete_treeNode(node)
-		elif sibling(node).color == BLACK:
-			if (!sibling(node).L and !sibling(node).R) or (sibling(node).L.color == BLACK and sibling(node).R.color == BLACK):
-				if node.P.color == RED:
+		elif sibling(node).color == BLACK: #兄弟是黑的
+			if !child(sibling(node)): #且兄弟沒孩子
+				if node.P.color == RED: #爸爸是紅的
 					node.P.color = BLACK
-				else:
+				else: #爸爸是黑的
 					node.P.color = BLACK
-					if node.P.P:
+					if sibling(node.P): #爸爸有兄弟
 						sibling(node.P).color = RED
 				sibling(node).color = RED
-			else:
-				pass
+			elif child(sibling(node)) == 3:
+				if sibling(node).L.color == BLACK and sibling(node).R.color == BLACK:
+					if node.P.color == RED: #爸爸是紅的
+						node.P.color = BLACK
+					else: #爸爸是黑的
+						node.P.color = BLACK
+						if sibling(node.P): #爸爸有兄弟
+							sibling(node.P).color = RED
+					sibling(node).color = RED
+				else:
+					if is_left_child(node):
+						rotR(node.P.R.L)
+						rotL(node.P.R)
+					
+			
+				
+		else:
+			pass
 		_delete_treeNode(node)
 		
 
@@ -154,7 +172,19 @@ func rotR(P:TreeNode):
 		_root = P
 		
 func sibling(node:TreeNode) -> TreeNode:
+	if !node.P:
+		return null
 	if node == node.P.L:
 		return node.P.R
 	else:
 		return node.P.L
+
+func child(node:TreeNode) -> int:
+	if node.L and node.R:
+		return 3
+	elif node.L:
+		return 1
+	elif node.R:
+		return 2
+	else:
+		return 0
