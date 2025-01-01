@@ -1,5 +1,3 @@
-## 紅黑樹刪除操作的實現
-## 包含節點刪除和平衡維護的所有邏輯
 class_name TreeRemove extends TreeCRUD
 
 ## 保存對當前樹根節點的引用
@@ -10,8 +8,10 @@ func remove(val) -> TreeNode:
 	if !_root:
 		return null
 	
-	MainScene.message("[color=yellow]Start removing " + str(val) + "[/color]")
-	_remove_BST(_root, val)
+	MainScene.message("[color=yellow]開始刪除節點 " + str(val) + "[/color]")
+	
+	# 第一步：執行標準的BST刪除
+	var result = _remove_BST(_root, val)
 	
 	# 確保根節點是黑色
 	if _root:
@@ -20,21 +20,23 @@ func remove(val) -> TreeNode:
 	return _root
 
 ## 在二叉搜索樹中執行刪除操作
-## 這是第一階段，只考慮二叉搜索樹的性質，不考慮顏色
-## @param node: 當前處理的節點
-## @param val: 要刪除的值
-## @return: 刪除後的子樹根節點
 func _remove_BST(node:TreeNode, val:float) -> TreeNode:
-	if node == null:
+	if !node:
 		return null
 	
 	# 找到要刪除的節點
 	if val == node.val:
-		# 調用 check 函數處理實際的刪除操作
-		var replacement = check(node)
-		if replacement:
-			replacement.P = node.P
-		return replacement
+		# 如果是葉子節點或只有一個子節點
+		if !node.L or !node.R:
+			return _handle_simple_delete(node)
+		
+		# 如果有兩個子節點，找到中序後繼節點
+		var successor = _find_min(node.R)
+		node.val = successor.val
+		node.R = _remove_BST(node.R, successor.val)
+		if node.R:
+			node.R.P = node
+		
 	# 在左子樹中搜索
 	elif val < node.val:
 		if node.L:
@@ -42,6 +44,7 @@ func _remove_BST(node:TreeNode, val:float) -> TreeNode:
 			node.L = new_left
 			if new_left:
 				new_left.P = node
+	
 	# 在右子樹中搜索
 	else:
 		if node.R:
@@ -49,296 +52,110 @@ func _remove_BST(node:TreeNode, val:float) -> TreeNode:
 			node.R = new_right
 			if new_right:
 				new_right.P = node
+	
 	return node
 
-## 檢查並處理節點刪除的具體情況
-## @param node: 要刪除的節點
-## @return: 替換被刪除節點的新節點
-func check(node:TreeNode) -> TreeNode:
-	if !node:
-		return null
-		
-	MainScene.message("[color=yellow]Deleting node: " + str(node.val) + ", color: " + ("BLACK" if node.color == BLACK else "RED") + "[/color]")
+## 處理簡單的刪除情況（節點是葉子或只有一個子節點）
+func _handle_simple_delete(node:TreeNode) -> TreeNode:
+	var child = node.L if node.L else node.R
+	var is_black_node = (node.color == BLACK)
 	
-	# 情況1：葉節點（沒有子節點）
-	if !node.L and !node.R:
-		MainScene.message("[color=cyan]Leaf node case[/color]")
-		handle_delete_leaf(node)
-		return null
+	# 如果是紅色節點，直接刪除
+	if node.color == RED:
+		_delete_treeNode(node)
+		return child
 	
-	# 情況2：只有右子節點
-	elif !node.L:
-		var child = node.R
-		if child:
-			MainScene.message("[color=cyan]Single right child case. Child value: " + str(child.val) + ", color: " + ("BLACK" if child.color == BLACK else "RED") + "[/color]")
-			handle_delete_with_one_child(node, child)
-			return child
-		return null
+	# 如果是黑色節點且有一個紅色子節點
+	if child and child.color == RED:
+		child.color = BLACK
+		_delete_treeNode(node)
+		return child
 	
-	# 情況3：只有左子節點
-	elif !node.R:
-		var child = node.L
-		if child:
-			MainScene.message("[color=cyan]Single left child case. Child value: " + str(child.val) + ", color: " + ("BLACK" if child.color == BLACK else "RED") + "[/color]")
-			handle_delete_with_one_child(node, child)
-			return child
-		return null
+	# 如果是黑色節點且沒有子節點或子節點是黑色
+	# 這種情況會產生雙黑色問題
+	_fix_double_black(node)
 	
-	# 情況4：有兩個子節點
-	else:
-		MainScene.message("[color=cyan]Two children case[/color]")
-		
-		# 先嘗試找右子樹中的最小節點（後繼）
-		var successor = _find_minR(node.R)
-		if successor:
-			MainScene.message("[color=cyan]Found successor: " + str(successor.val) + ", color: " + ("BLACK" if successor.color == BLACK else "RED") + "[/color]")
-			# 用後繼節點的值替換當前節點的值
-			node.val = successor.val
-			# 遞歸刪除後繼節點
-			var new_right = _remove_BST(node.R, successor.val)
-			node.R = new_right
-			if new_right:
-				new_right.P = node
-		# 如果沒有找到後繼，嘗試找左子樹中的最大節點（前驅）tt
-		else:
-			var predecessor = _find_maxL(node.L)
-			if predecessor:
-				MainScene.message("[color=cyan]Found predecessor: " + str(predecessor.val) + ", color: " + ("BLACK" if predecessor.color == BLACK else "RED") + "[/color]")
-				# 用前驅節點的值替換當前節點的值
-				node.val = predecessor.val
-				# 遞歸刪除前驅節點
-				var new_left = _remove_BST(node.L, predecessor.val)
-				node.L = new_left
-				if new_left:
-					new_left.P = node
-			else:
-				MainScene.message("[color=red]Error: Neither successor nor predecessor found[/color]")
-		
-		return node
-
-## 處理刪除只有一個子節點的情況
-## @param node: 要刪除的節點
-## @param child: 要替換上去的子節點
-func handle_delete_with_one_child(node:TreeNode, child:TreeNode):
-	if !node or !child:
-		return
-		
-	var node_color = node.color
-	var parent = node.P
-	var is_left = is_left_child(node)
-	var child_is_left = (node.L == child)
-	
-	MainScene.message("[color=yellow]handle_delete_with_one_child - Node: " + str(node.val) + 
-		", color: " + ("BLACK" if node_color == BLACK else "RED") + 
-		", Child: " + str(child.val) + 
-		" (" + ("LEFT" if child_is_left else "RIGHT") + ")" +
-		", color: " + ("BLACK" if child.color == BLACK else "RED") + "[/color]")
-	
-	# 第1步：更新節點關係
-	node.P = null
-	
-	# 第2步：更新父子關係
-	if parent:
-		if is_left:
-			parent.L = child
-		else:
-			parent.R = child
-			
-		# 確保父節點的連接線狀態正確
-		if parent.L:
-			parent.L.P = parent
-		if parent.R:
-			parent.R.P = parent
-	else:
-		_root = child
-	
-	child.P = parent
-	
-	# 第3步：處理節點顏色
-	if node_color == BLACK:
-		if child.color == RED:
-			# 如果刪除的是黑節點，子節點是紅節點，直接將子節點變黑
-			MainScene.message("[color=green]BLACK node replaced by RED child, changing child to BLACK[/color]")
-			child.color = BLACK
-		else:
-			# 如果刪除的是黑節點，子節點也是黑節點，需要修復 double black
-			MainScene.message("[color=red]Both node and child are BLACK, fixing double black[/color]")
-			fix_double_black_iterative(child)
-	else:
-		# 如果刪除的是紅節點，子節點必須變為黑色以維持性質
-		if child.color == RED:
-			MainScene.message("[color=green]RED node replaced by RED child, changing child to BLACK[/color]")
-			child.color = BLACK
-	
-	_delete_treeNode(node)
-	
-	# 最後確保根節點是黑色
-	if _root:
-		_root.color = BLACK
-
-## 處理刪除葉子節點的情況
-func handle_delete_leaf(node:TreeNode):
-	if !node:
-		return
-		
-	MainScene.message("[color=cyan]Handling leaf deletion[/color]")
-	
-	# 如果是根節點
-	if node == _root:
-		_root = null
-		_delete_treeNode(node)  # 確保節點被銷毀
-		return
-	
-	var parent = node.P
-	if !parent:
-		return
-		
-	# 如果刪除的是右葉子節點，檢查是否需要重組樹結構
-	if is_right_child(node) and parent.L and parent.L.color == RED:
-		var left_child = parent.L
-		
-		# 將左子節點（紅色）提升為新的根
-		if parent == _root:
-			# 保存原有的連接關係
-			var left_child_right = left_child.R
-			
-			# 設置新的根節點
-			_root = left_child
-			left_child.P = null
-			
-			# 將原根節點變為右子節點，保持其原有的子節點
-			parent.L = left_child_right
-			if left_child_right:
-				left_child_right.P = parent
-			parent.R = null  # 清除要刪除的節點的引用
-			
-			# 設置新的父子關係
-			left_child.R = parent
-			parent.P = left_child
-			
-			# 調整顏色
-			left_child.color = BLACK  # 根節點必須是黑色
-			parent.color = RED
-			
-			# 確保要刪除的節點被實際銷毀
-			_delete_treeNode(node)
-			return
-	
-	# 一般情況的葉子節點刪除
 	if is_left_child(node):
-		parent.L = null
+		node.P.L = null
+	elif is_right_child(node):
+		node.P.R = null
 	else:
-		parent.R = null
+		_root = null
 	
-	# 確保要刪除的節點被實際銷毀
 	_delete_treeNode(node)
-	
-	# 如果刪除的是黑色節點，需要修復
-	if node.color == BLACK:
-		fix_double_black_iterative(parent)
+	return null
 
-## 修復 double black 問題的迭代實現
-## double black 是在刪除黑色節點時可能出現的情況
-## @param node: 當前的 double black 節點
-func fix_double_black_iterative(node:TreeNode):
-	if !node:
-		return
-		
-	var current = node
-	
-	# 如果當前節點是紅色，直接變黑就可以了
-	if current.color == RED:
-		current.color = BLACK
+## 修復雙黑色問題
+func _fix_double_black(node:TreeNode):
+	if node == _root:
 		return
 	
-	# 當節點不是根節點時，需要繼續處理
-	while current != null and current != _root:
-		var parent = current.P
-		if !parent:
-			break
-			
-		var sibling = get_sibling(current)
-		if !sibling:
-			current = parent
-			continue
-			
-		# 獲取兄弟節點子節點的顏色，如果子節點不存在則視為黑色
-		var sibling_left_color = BLACK if !sibling.L else sibling.L.color
-		var sibling_right_color = BLACK if !sibling.R else sibling.R.color
-		
-		# Case 1: 兄弟節點是紅色
+	var sibling = get_sibling(node)
+	var parent = node.P
+	
+	if !sibling:
+		# 如果沒有兄弟節點，雙黑色問題上移到父節點
+		_fix_double_black(parent)
+	else:
 		if sibling.color == RED:
-			MainScene.message("[color=yellow]Case 1: Red sibling[/color]")
-			sibling.color = BLACK
-			parent.color = RED
-			if is_left_child(current):
-				rotL(parent)
-				if parent == _root:
-					_root = sibling  # 更新根節點
-			else:
-				rotR(parent)
-				if parent == _root:
-					_root = sibling  # 更新根節點
-			sibling = get_sibling(current)
-			if !sibling:
-				break
+			# Case 3: 兄弟節點是紅色
+			_handle_red_sibling(node, sibling)
+			sibling = get_sibling(node)  # 重新獲取新的兄弟節點
 		
-		# Case 2: 兄弟節點是黑色，且兩個子節點都是黑色
-		if sibling_left_color == BLACK and sibling_right_color == BLACK:
-			MainScene.message("[color=yellow]Case 2: Black sibling with black children[/color]")
-			sibling.color = RED
-			
-			if parent.color == RED:
-				parent.color = BLACK
-				break
-			current = parent
-			continue
+		# 檢查兄弟節點的子節點
+		var has_red_child = (sibling.L and sibling.L.color == RED) or \
+							(sibling.R and sibling.R.color == RED)
 		
-		# Case 3: 兄弟節點是黑色，至少有一個紅色子節點
-		if is_left_child(current):
-			if sibling.R and sibling.R.color == RED:
-				# Case 3a: 兄弟的右子是紅色（左邊情況）
-				MainScene.message("[color=yellow]Case 3a: Black sibling with red right child (left case)[/color]")
-				sibling.color = parent.color
-				parent.color = BLACK
-				sibling.R.color = BLACK
-				rotL(parent)
-				break
-			elif sibling.L and sibling.L.color == RED:
-				# Case 3b: 兄弟的左子是紅色（左邊情況）
-				MainScene.message("[color=yellow]Case 3b: Black sibling with red left child (left case)[/color]")
-				sibling.L.color = parent.color
-				sibling.color = RED
-				rotR(sibling)
-			else:
-				MainScene.message("[color=red]Unexpected case in left child handling[/color]")
+		if has_red_child:
+			# Case 1: 兄弟是黑色且至少有一個紅色子節點
+			_handle_black_sibling_with_red_child(node, sibling)
 		else:
-			if sibling.L and sibling.L.color == RED:
-				# Case 3c: 兄弟的左子是紅色（右邊情況）
-				MainScene.message("[color=yellow]Case 3c: Black sibling with red left child (right case)[/color]")
-				sibling.color = parent.color
-				parent.color = BLACK
-				sibling.L.color = BLACK
-				rotR(parent)
-				break
-			elif sibling.R and sibling.R.color == RED:
-				# Case 3d: 兄弟的右子是紅色（右邊情況）
-				MainScene.message("[color=yellow]Case 3d: Black sibling with red right child (right case)[/color]")
-				sibling.R.color = parent.color
-				sibling.color = RED
-				rotL(sibling)
+			# Case 2: 兄弟是黑色且所有子節點都是黑色
+			sibling.color = RED
+			if parent.color == BLACK:
+				_fix_double_black(parent)
 			else:
-				MainScene.message("[color=red]Unexpected case in right child handling[/color]")
-	
-	# 確保最終狀態正確
-	if current:
-		current.color = BLACK
-	if _root:
-		_root.color = BLACK
+				parent.color = BLACK
 
-## 獲取節點的兄弟節點
-## @param node: 當前節點
-## @return: 兄弟節點，如果不存在則返回 null
+## 處理紅色兄弟節點的情況
+func _handle_red_sibling(node:TreeNode, sibling:TreeNode):
+	sibling.color = BLACK
+	node.P.color = RED
+	
+	if is_left_child(node):
+		_rotate_left(node.P)
+	else:
+		_rotate_right(node.P)
+
+## 處理黑色兄弟節點且有紅色子節點的情況
+func _handle_black_sibling_with_red_child(node:TreeNode, sibling:TreeNode):
+	var is_left = is_left_child(node)
+	var far_child = sibling.R if is_left else sibling.L
+	var near_child = sibling.L if is_left else sibling.R
+	
+	if far_child and far_child.color == RED:
+		# 遠側有紅色子節點
+		far_child.color = sibling.color
+		sibling.color = node.P.color
+		node.P.color = BLACK
+		
+		if is_left:
+			_rotate_left(node.P)
+		else:
+			_rotate_right(node.P)
+	elif near_child and near_child.color == RED:
+		# 近側有紅色子節點
+		near_child.color = node.P.color
+		node.P.color = BLACK
+		
+		if is_left:
+			_rotate_right(sibling)
+			_rotate_left(node.P)
+		else:
+			_rotate_left(sibling)
+			_rotate_right(node.P)
+
+## 獲取兄弟節點
 func get_sibling(node:TreeNode) -> TreeNode:
 	if !node or !node.P:
 		return null
@@ -346,88 +163,49 @@ func get_sibling(node:TreeNode) -> TreeNode:
 		return node.P.R
 	return node.P.L
 
-## 在右子樹中找最小值節點（後繼）
-## @param node: 子樹的根節點
-## @return: 最小值節點
-func _find_minR(node:TreeNode) -> TreeNode:
-	if !node:
-		return null
+## 找到以node為根的子樹中的最小值節點
+func _find_min(node:TreeNode) -> TreeNode:
 	var current = node
-	while current.L != null:
+	while current and current.L:
 		current = current.L
 	return current
 
-## 在左子樹中找最大值節點（前驅）
-## @param node: 子樹的根節點
-## @return: 最大值節點
-func _find_maxL(node:TreeNode) -> TreeNode:
-	if !node:
-		return null
-	var current = node
-	while current.R != null:
-		current = current.R
-	return current
-
-## 執行左旋操作
-## @param P: 要旋轉的節點
-func rotL(P:TreeNode):
-	if !P or !P.R:  # 安全檢查
-		MainScene.message("[color=red]Invalid rotation: Missing required nodes for left rotation[/color]")
-		return
-		
-	MainScene.message("[color=yellow]L rotate ![/color]")
-	var gp:TreeNode = P.P  # 祖父節點
-	var fa:TreeNode = P    # 父節點
-	var y:TreeNode = P.R   # 右子節點
-		
-	# 更新節點關係
-	fa.R = y.L
-	if y.L:
-		y.L.P = fa
+## 左旋操作
+func _rotate_left(node:TreeNode):
+	var right_child = node.R
+	node.R = right_child.L
 	
-	y.L = fa
-	fa.P = y
-	y.P = gp
-
-	# 更新祖父節點的引用
-	if gp:
-		if gp.L == fa:
-			gp.L = y
-		else:
-			gp.R = y
+	if right_child.L:
+		right_child.L.P = node
 	
-	# 如果旋轉的是根節點，更新根節點引用
-	if _root == fa:
-		_root = y
-
-## 執行右旋操作
-## @param P: 要旋轉的節點
-func rotR(P:TreeNode):
-	if !P or !P.L:  # 安全檢查
-		MainScene.message("[color=red]Invalid rotation: Missing required nodes for right rotation[/color]")
-		return
-		
-	MainScene.message("[color=yellow]R rotate ![/color]")
-	var gp:TreeNode = P.P  # 祖父節點
-	var fa:TreeNode = P    # 父節點
-	var y:TreeNode = P.L   # 左子節點
-		
-	# 更新節點關係
-	fa.L = y.R
-	if y.R:
-		y.R.P = fa
+	right_child.P = node.P
 	
-	y.R = fa
-	fa.P = y
-	y.P = gp
-
-	# 更新祖父節點的引用
-	if gp:
-		if gp.L == fa:
-			gp.L = y
-		else:
-			gp.R = y
+	if !node.P:
+		_root = right_child
+	elif node == node.P.L:
+		node.P.L = right_child
+	else:
+		node.P.R = right_child
 	
-	# 如果旋轉的是根節點，更新根節點引用
-	if _root == fa:
-		_root = y
+	right_child.L = node
+	node.P = right_child
+
+## 右旋操作
+func _rotate_right(node:TreeNode):
+	var left_child = node.L
+	node.L = left_child.R
+	
+	if left_child.R:
+		left_child.R.P = node
+	
+	left_child.P = node.P
+	
+	if !node.P:
+		_root = left_child
+	elif node == node.P.R:
+		node.P.R = left_child
+	else:
+		node.P.L = left_child
+	
+	left_child.R = node
+	node.P = left_child
