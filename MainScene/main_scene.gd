@@ -51,9 +51,11 @@ func _insert(val:float, batch:bool=false):
 
 func _remove(val:float):
 	_message("[color=red]Remove "+str(val)+"[/color]")
-	_root = _tree_remove.remove(_root, val)
+	_tree_remove._root = _root  # 設置當前根節點
+	_root = _tree_remove.remove(val)  # 執行刪除操作
 	_tree_update()
 	_save_state("Remove " + str(val))
+	_message("[color=red]===== Remove Finish =====[/color]")
 
 func _save_state(message: String):
 	var nodes = []

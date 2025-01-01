@@ -5,14 +5,19 @@ class_name TreeRemove extends TreeCRUD
 ## 保存對當前樹根節點的引用
 static var _root:TreeNode
 
-## 刪除操作的入口函數
-## 給定樹的根節點和要刪除的值，返回新的根節點
-## @param root: 樹的根節點
-## @param remove_val: 要刪除的值
-## @return: 刪除操作後的新根節點
-func remove(root:TreeNode, remove_val:float) -> TreeNode:
-	_root = root
-	return _remove_BST(root, remove_val)
+## 刪除指定值的節點
+func remove(val) -> TreeNode:
+	if !_root:
+		return null
+	
+	MainScene.message("[color=yellow]Start removing " + str(val) + "[/color]")
+	_remove_BST(_root, val)
+	
+	# 確保根節點是黑色
+	if _root:
+		_root.color = BLACK
+	
+	return _root
 
 ## 在二叉搜索樹中執行刪除操作
 ## 這是第一階段，只考慮二叉搜索樹的性質，不考慮顏色
@@ -171,51 +176,66 @@ func handle_delete_with_one_child(node:TreeNode, child:TreeNode):
 	if _root:
 		_root.color = BLACK
 
-## 處理刪除葉節點的情況
-## @param node: 要刪除的葉節點
+## 處理刪除葉子節點的情況
 func handle_delete_leaf(node:TreeNode):
 	if !node:
 		return
 		
-	var parent = node.P
-	var is_left = is_left_child(node)
+	MainScene.message("[color=cyan]Handling leaf deletion[/color]")
 	
-	MainScene.message("[color=yellow]handle_delete_leaf - Node: " + str(node.val) + ", color: " + ("BLACK" if node.color == BLACK else "RED") + "[/color]")
-	
-	if parent:
-		# 處理兄弟節點的顏色
-		var sibling = get_sibling(node)
-		if sibling:
-			if parent.color == RED:
-				MainScene.message("[color=green]Parent is RED, setting sibling to BLACK[/color]")
-				sibling.color = BLACK
-			else:
-				MainScene.message("[color=green]Parent is BLACK, setting sibling to RED[/color]")
-				sibling.color = RED
-		
-		# 從父節點中移除當前節點
-		node.P = null
-		if is_left:
-			parent.L = null
-		else:
-			parent.R = null
-			
-		# 更新父節點的連接狀態
-		if parent.L:
-			parent.L.P = parent
-		if parent.R:
-			parent.R.P = parent
-	else:
+	# 如果是根節點
+	if node == _root:
 		_root = null
+		_delete_treeNode(node)  # 確保節點被銷毀
+		return
+	
+	var parent = node.P
+	if !parent:
+		return
 		
-	# 如果是紅色葉節點，直接刪除
-	if node.color == RED:
-		_delete_treeNode(node)
+	# 如果刪除的是右葉子節點，檢查是否需要重組樹結構
+	if is_right_child(node) and parent.L and parent.L.color == RED:
+		var left_child = parent.L
+		
+		# 將左子節點（紅色）提升為新的根
+		if parent == _root:
+			# 保存原有的連接關係
+			var left_child_right = left_child.R
+			
+			# 設置新的根節點
+			_root = left_child
+			left_child.P = null
+			
+			# 將原根節點變為右子節點，保持其原有的子節點
+			parent.L = left_child_right
+			if left_child_right:
+				left_child_right.P = parent
+			parent.R = null  # 清除要刪除的節點的引用
+			
+			# 設置新的父子關係
+			left_child.R = parent
+			parent.P = left_child
+			
+			# 調整顏色
+			left_child.color = BLACK  # 根節點必須是黑色
+			parent.color = RED
+			
+			# 確保要刪除的節點被實際銷毀
+			_delete_treeNode(node)
+			return
+	
+	# 一般情況的葉子節點刪除
+	if is_left_child(node):
+		parent.L = null
 	else:
-		# 如果是黑色葉節點，需要處理 double black 問題
-		MainScene.message("[color=red]BLACK leaf node, fixing double black[/color]")
-		fix_double_black_iterative(node)
-		_delete_treeNode(node)
+		parent.R = null
+	
+	# 確保要刪除的節點被實際銷毀
+	_delete_treeNode(node)
+	
+	# 如果刪除的是黑色節點，需要修復
+	if node.color == BLACK:
+		fix_double_black_iterative(parent)
 
 ## 修復 double black 問題的迭代實現
 ## double black 是在刪除黑色節點時可能出現的情況
@@ -253,8 +273,12 @@ func fix_double_black_iterative(node:TreeNode):
 			parent.color = RED
 			if is_left_child(current):
 				rotL(parent)
+				if parent == _root:
+					_root = sibling  # 更新根節點
 			else:
 				rotR(parent)
+				if parent == _root:
+					_root = sibling  # 更新根節點
 			sibling = get_sibling(current)
 			if !sibling:
 				break
@@ -343,36 +367,6 @@ func _find_maxL(node:TreeNode) -> TreeNode:
 	while current.R != null:
 		current = current.R
 	return current
-
-## 計算右子樹的層數
-## @param node: 子樹的根節點
-## @return: 層數
-func laynR(node:TreeNode) -> int:
-	var Rn:int = -1
-	if node == null:
-		return 0
-	var current = node
-	while current.L != null:
-		Rn += 1
-		current = current.L
-	if current.R:
-		return Rn + 1
-	return Rn
-
-## 計算左子樹的層數
-## @param node: 子樹的根節點
-## @return: 層數
-func laynL(node:TreeNode) -> int:
-	var Ln:int = -1
-	if node == null:
-		return 0
-	var current = node
-	while current.R != null:
-		Ln += 1
-		current = current.R
-	if current.L:
-		return Ln + 1
-	return Ln
 
 ## 執行左旋操作
 ## @param P: 要旋轉的節點
