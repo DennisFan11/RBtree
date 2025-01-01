@@ -1,10 +1,15 @@
 class_name TreeNode extends Node2D
 enum {BLACK, RED, DOUBLE_BLACK}
 var color:int
+var _val:float
 var val:float:
 	set(new):
-		$Panel/Label.text = str(new)
-		val=new
+		_val = new
+		if $Panel/Label:  # 確保 Label 存在
+			$Panel/Label.text = str(new)
+	get:
+		return _val
+
 var P:TreeNode: # 父節點
 	set(new):
 		P = new
@@ -77,5 +82,9 @@ func _visible_update():
 
 func _on_texture_button_button_down() -> void:
 	MainScene.remove(val)
+
+func _ready():
+	if _val:  # 如果值已經設置，更新 Label
+		$Panel/Label.text = str(_val)
 
 #endregion
