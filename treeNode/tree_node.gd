@@ -5,7 +5,7 @@ var _val:float
 var val:float:
 	set(new):
 		_val = new
-		if $Panel/Label:  # 確保 Label 存在
+		if is_node_ready() and $Panel/Label:  # 確保節點已準備好且 Label 存在
 			$Panel/Label.text = str(new)
 	get:
 		return _val
@@ -25,30 +25,6 @@ var PP:TreeNode:
 	get:
 		return P.P if P else null
 
-
-
-#region 內部邏輯区域
-#func do(undoRedo:UndoRedo): # WARNING 未完成功能
-	#undoRedo.add_do_property(self, "val", val)
-	#undoRedo.add_do_property(self, "color", color)
-	#undoRedo.add_do_property(self, "P", P)
-	#undoRedo.add_do_property(self, "R", R)
-	#undoRedo.add_do_property(self, "L", L)
-#func undo(undoRedo:UndoRedo):
-	#undoRedo.add_undo_property(self, "val", val)
-	#undoRedo.add_undo_property(self, "color", color)
-	#undoRedo.add_undo_property(self, "P", P)
-	#undoRedo.add_undo_property(self, "R", R)
-	#undoRedo.add_undo_property(self, "L", L)
-
-
-func _get_self_point()-> Vector2: # 獲取節點位置
-	return %SelfPoint.global_position
-func _get_l_point()-> Vector2:
-	return %LPoint.position
-func _get_r_point()-> Vector2:
-	return %RPoint.position
-
 var _deepth:int
 var _xid:int
 
@@ -62,9 +38,27 @@ var _color_map = {
 const H_SPACE = 30.0 # 60
 const V_SPACE = 60.0
 const LERP_SPEED = 5.5
+
+static func create() -> TreeNode:
+	# 載入場景
+	var scene = load("res://treeNode/treeNode.tscn")
+	return scene.instantiate()
+
+func _get_self_point()-> Vector2:
+	return %SelfPoint.global_position
+
+func _get_l_point()-> Vector2:
+	return %LPoint.position
+
+func _get_r_point()-> Vector2:
+	return %RPoint.position
+
 func _process(delta: float) -> void:
+	if not is_node_ready():
+		return
+		
 	_visible_update()
-	position = position.lerp( Vector2( H_SPACE*_xid, V_SPACE*_deepth ), LERP_SPEED*delta )
+	position = position.lerp(Vector2(H_SPACE*_xid, V_SPACE*_deepth), LERP_SPEED*delta)
 	if L:
 		_LL.points = [_get_l_point(), to_local(L._get_self_point())]
 		_LL.default_color = _color_map[L.color]
@@ -78,13 +72,13 @@ func _process(delta: float) -> void:
 		_RR.points = []
 
 func _visible_update():
+	if not is_node_ready() or not %TextureButton:
+		return
 	%TextureButton.disabled = !%TextureButton.is_hovered()
 
 func _on_texture_button_button_down() -> void:
 	MainScene.remove(val)
 
 func _ready():
-	if _val:  # 如果值已經設置，更新 Label
+	if _val != 0:  # 如果值已經設置，更新 Label
 		$Panel/Label.text = str(_val)
-
-#endregion

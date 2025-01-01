@@ -5,6 +5,16 @@ class_name MainScene extends Node2D
 func _ready() -> void:
 	_main_scene = self
 	_tree = %Tree
+	_history = TreeHistory.new()
+	# 綁定快捷鍵
+	set_process_input(true)
+	
+	# 綁定按鈕事件
+	%PreviousButton.pressed.connect(_on_previous_button_pressed)
+	%NextButton.pressed.connect(_on_next_button_pressed)
+	
+	# 初始化按鈕狀態
+	_update_history_buttons()
 
 static var _tree:Node2D
 static var _main_scene:MainScene
@@ -22,6 +32,7 @@ static func message(bbtext:String)-> void:
 
 #region 樹操作
 var _root :TreeNode
+var _history: TreeHistory
 
 var _tree_insert:TreeInsert = TreeInsert.new()
 var _tree_remove:TreeRemove = TreeRemove.new()
@@ -30,13 +41,140 @@ func _insert(val:float, batch:bool=false):
 	_message("[color=green]Insert "+str(val)+"[/color]")
 	_root = _tree_insert.insert(_root, val)
 	_tree_update()
-	if !batch:
+	
+	# 總是保存狀態，但使用不同的描述
+	if batch:
+		_save_state("Batch Insert " + str(val))
+	else:
+		_save_state("Insert " + str(val))
 		_message("[color=green]===== Insert Finish =====[/color]")
 
 func _remove(val:float):
 	_message("[color=red]Remove "+str(val)+"[/color]")
 	_root = _tree_remove.remove(_root, val)
 	_tree_update()
+	_save_state("Remove " + str(val))
+
+func _save_state(message: String):
+	var nodes = []
+	var connections = []
+	_collect_tree_state(_root, nodes, connections)
+	_history.save_state(nodes, connections, message)
+	_update_history_buttons()
+
+func _update_history_buttons():
+	if %PreviousButton and %NextButton:
+		%PreviousButton.disabled = not _history.can_undo()
+		%NextButton.disabled = not _history.can_redo()
+
+func _collect_tree_state(node: TreeNode, nodes: Array, connections: Array):
+	if !node:
+		return
+	
+	# 儲存節點資訊
+	nodes.append({
+		"val": node.val,
+		"color": node.color,
+		"position": node.position,
+		"parent_val": node.P.val if node.P else null  # 保存父節點的值
+	})
+	
+	# 儲存連接資訊
+	if node.L:
+		connections.append({
+			"from": node.val,
+			"to": node.L.val,
+			"type": "left",
+			"color": node.L.color  # 保存連接線顏色
+		})
+		_collect_tree_state(node.L, nodes, connections)
+	
+	if node.R:
+		connections.append({
+			"from": node.val,
+			"to": node.R.val,
+			"type": "right",
+			"color": node.R.color  # 保存連接線顏色
+		})
+		_collect_tree_state(node.R, nodes, connections)
+
+func _restore_state(state: Dictionary):
+	if state.is_empty():
+		return
+		
+	# 清除當前樹
+	for child in _tree.get_children():
+		_tree.remove_child(child)
+		child.queue_free()
+	
+	# 重建節點
+	var nodes_dict = {}  # 用於快速查找節點
+	_root = null  # 重置根節點
+	
+	# 第一步：創建所有節點
+	for node_data in state["nodes"]:
+		var node = TreeNode.create()  # 使用 create 方法創建節點
+		node.val = node_data["val"]
+		node.color = node_data["color"]
+		node.position = node_data["position"]
+		nodes_dict[node.val] = node
+		_tree.add_child(node)
+		
+		# 如果沒有父節點，則這是根節點
+		if node_data["parent_val"] == null:
+			_root = node
+	
+	# 第二步：建立父子關係
+	for node_data in state["nodes"]:
+		var node = nodes_dict[node_data["val"]]
+		if node_data["parent_val"] != null:
+			node.P = nodes_dict[node_data["parent_val"]]
+	
+	# 第三步：建立連接
+	for conn in state["connections"]:
+		var from_node = nodes_dict[conn["from"]]
+		var to_node = nodes_dict[conn["to"]]
+		
+		if conn["type"] == "left":
+			from_node.L = to_node
+		else:  # right
+			from_node.R = to_node
+			
+		to_node.P = from_node
+	
+	# 更新樹的顯示
+	_tree_update()
+
+func _find_node(val: float) -> TreeNode:
+	for child in _tree.get_children():
+		if child is TreeNode and child.val == val:
+			return child
+	return null
+
+func _input(event: InputEvent):
+	if event.is_action_pressed("ui_undo"):  # Ctrl+Z
+		_on_previous_button_pressed()
+	elif event.is_action_pressed("ui_redo"):  # Ctrl+Y or Ctrl+Shift+Z
+		_on_next_button_pressed()
+	elif event.is_action_pressed("Enter"):
+		_on_button_button_down()
+	elif event.is_action_pressed("zoom_in"):
+		%Camera2D.zoom *= 1.1
+	elif event.is_action_pressed("zoom_out"):
+		%Camera2D.zoom *= 0.9
+	elif event.is_action_pressed("right_click"):
+		_on_back_to_root_button_down()
+
+func _on_previous_button_pressed():
+	var state = _history.undo()
+	_restore_state(state)
+	_update_history_buttons()
+
+func _on_next_button_pressed():
+	var state = _history.redo()
+	_restore_state(state)
+	_update_history_buttons()
+
 #endregion
 
 #region 位置更新相關
@@ -109,67 +247,85 @@ func _on_button_button_down() -> void: ## insert
 	%TextEdit.text = ""
 	_insert(val)
 
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("Enter"):
-		_on_button_button_down()
-	elif event.is_action_pressed("zoom_in"):
-		%Camera2D.zoom *= 1.1
-	elif event.is_action_pressed("zoom_out"):
-		%Camera2D.zoom *= 0.9
-	elif event.is_action_pressed("right_click"):
-		_on_back_to_root_button_down()
-
 func _on_ll_button_down() -> void:
-	for i in [6, 7, 4, 5, 2, 3, 1]: # LL 
-		_insert(i,true)
+	if _history._history.is_empty():
+		_save_state("Initial State")
+	
+	var values = [6, 7, 4, 5, 2, 3, 1]
+	for i in values:
+		_insert(i, true)
+	
 	_message("[color=green]Test Data: LL [/color]")
-	_message("[color=green]===== Insert Finish =====[/color]")
 
 func _on_lr_button_down() -> void:
-	for i in [6, 2, 7, 1, 4, 3, 5]: # LR
-		_insert(i,true)
+	if _history._history.is_empty():
+		_save_state("Initial State")
+	
+	var values = [6, 2, 7, 1, 4, 3, 5]
+	for i in values:
+		_insert(i, true)
+	
 	_message("[color=green]Test Data: LR [/color]")
-	_message("[color=green]===== Insert Finish =====[/color]")
 
 func _on_rl_button_down() -> void:
-	for i in [2, 1, 6, 4, 7, 3, 5]:
-		_insert(i,true)
+	if _history._history.is_empty():
+		_save_state("Initial State")
+	
+	var values = [2, 1, 6, 4, 7, 3, 5]
+	for i in values:
+		_insert(i, true)
+	
 	_message("[color=green]Test Data: RL [/color]")
-	_message("[color=green]===== Insert Finish =====[/color]")
 
 func _on_rr_button_down() -> void:
-	for i in [2, 1, 4, 3, 6, 5, 7]:
-		_insert(i,true)
+	if _history._history.is_empty():
+		_save_state("Initial State")
+	
+	var values = [2, 1, 4, 3, 6, 5, 7]
+	for i in values:
+		_insert(i, true)
+	
 	_message("[color=green]Test Data: RR [/color]")
-	_message("[color=green]===== Insert Finish =====[/color]")
 
 func _on_clear_button_button_down() -> void:
 	_root = null
 	for i in %Tree.get_children():
 		i.queue_free()
+	_save_state("Clear Tree")  # 保存清除狀態
 
 func _on_random_100_button_button_down() -> void:
+	if _history._history.is_empty():
+		_save_state("Initial State")
+	
 	for i in range(10):
-		_insert(randi_range(0, 1000), true)
-	_message("[color=green]Test Data: RR [/color]")
-	_message("[color=green]===== Insert Finish =====[/color]")
+		var val = randi_range(0, 1000)
+		_insert(val, true)
+	
+	_message("[color=green]Test Data: Random x10 [/color]")
 
 func _on_random_1000_button_button_down() -> void:
+	if _history._history.is_empty():
+		_save_state("Initial State")
+	
 	for i in range(100):
-		_insert(randi_range(0, 1000), true)
-	_message("[color=green]Test Data: RR [/color]")
-	_message("[color=green]===== Insert Finish =====[/color]")
+		var val = randi_range(0, 1000)
+		_insert(val, true)
+	
+	_message("[color=green]Test Data: Random x100 [/color]")
+
+func _on_test_button_button_down() -> void:
+	if _history._history.is_empty():
+		_save_state("Initial State")
+	
+	for i in range(100):
+		_insert(i, true)
+	
+	_message("[color=green]Test Data: Sequential [/color]")
 
 func _on_back_to_root_button_down() -> void:
 	if _root:
 		_camera_pos = _root.global_position + Vector2(0.0, 150.0)
 
-func _on_test_button_button_down() -> void:
-	for i in range(100):
-		_insert(i, true)
-	
-func _on_h_slider_value_changed(value: float) -> void:
-	CAMERA_MOVE_SPEED = value
 #endregion
 
 #region UndoRedo WARNING 未完成功能
@@ -180,7 +336,7 @@ func _on_h_slider_value_changed(value: float) -> void:
 		#if root.L:
 			#add_do(u, root.L)
 		#if root.R:
-			#add_do(u, root.R)
+			#add_undo(u, root.R)
 		#root.do(u)
 #static func add_undo(u:UndoRedo, root:TreeNode):
 	#_u = u
