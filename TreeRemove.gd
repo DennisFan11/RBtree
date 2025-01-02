@@ -138,6 +138,14 @@ func _handle_simple_delete(node:TreeNode) -> TreeNode:
 	# 如果是紅色節點，直接刪除
 	if node.color == RED:
 		MainScene.message("[color=green]刪除紅色節點，不需要平衡[/color]")
+		if child:
+			child.P = node.P
+		if node == _root:
+			_root = child
+		elif is_left_child(node):
+			node.P.L = child
+		elif is_right_child(node):
+			node.P.R = child
 		_delete_treeNode(node)
 		return child
 	
@@ -145,6 +153,13 @@ func _handle_simple_delete(node:TreeNode) -> TreeNode:
 	if child and child.color == RED:
 		MainScene.message("[color=green]黑色節點有紅色子節點，子節點變黑[/color]")
 		child.color = BLACK
+		child.P = node.P
+		if node == _root:
+			_root = child
+		elif is_left_child(node):
+			node.P.L = child
+		elif is_right_child(node):
+			node.P.R = child
 		_delete_treeNode(node)
 		return child
 	
@@ -152,15 +167,12 @@ func _handle_simple_delete(node:TreeNode) -> TreeNode:
 	MainScene.message("[color=red]發現雙黑色情況，需要修復[/color]")
 	_fix_double_black(node)
 	
-	if is_left_child(node):
-		MainScene.message("[color=cyan]移除左子節點[/color]")
-		node.P.L = null
-	elif is_right_child(node):
-		MainScene.message("[color=cyan]移除右子節點[/color]")
-		node.P.R = null
-	else:
-		MainScene.message("[color=cyan]移除根節點[/color]")
+	if node == _root:
 		_root = null
+	elif is_left_child(node):
+		node.P.L = null
+	else:
+		node.P.R = null
 	
 	_delete_treeNode(node)
 	return null

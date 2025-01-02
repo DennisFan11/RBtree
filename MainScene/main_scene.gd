@@ -250,7 +250,7 @@ func _on_button_button_down() -> void: ## insert
 	_insert(val)
 
 func _on_ll_button_down() -> void:
-	if _history._history.is_empty():
+	if _history.history.is_empty():
 		_save_state("Initial State")
 	
 	var values = [6, 7, 4, 5, 2, 3, 1]
@@ -260,7 +260,7 @@ func _on_ll_button_down() -> void:
 	_message("[color=green]Test Data: LL [/color]")
 
 func _on_lr_button_down() -> void:
-	if _history._history.is_empty():
+	if _history.history.is_empty():
 		_save_state("Initial State")
 	
 	var values = [6, 2, 7, 1, 4, 3, 5]
@@ -270,7 +270,7 @@ func _on_lr_button_down() -> void:
 	_message("[color=green]Test Data: LR [/color]")
 
 func _on_rl_button_down() -> void:
-	if _history._history.is_empty():
+	if _history.history.is_empty():
 		_save_state("Initial State")
 	
 	var values = [2, 1, 6, 4, 7, 3, 5]
@@ -280,7 +280,7 @@ func _on_rl_button_down() -> void:
 	_message("[color=green]Test Data: RL [/color]")
 
 func _on_rr_button_down() -> void:
-	if _history._history.is_empty():
+	if _history.history.is_empty():
 		_save_state("Initial State")
 	
 	var values = [2, 1, 4, 3, 6, 5, 7]
@@ -295,8 +295,8 @@ func _on_clear_button_button_down() -> void:
 		i.queue_free()
 	_save_state("Clear Tree")  # 保存清除狀態
 
-func _on_random_100_button_button_down() -> void:
-	if _history._history.is_empty():
+func _on_random_10_button_button_down() -> void:
+	if _history.history.is_empty():
 		_save_state("Initial State")
 	
 	for i in range(10):
@@ -305,8 +305,8 @@ func _on_random_100_button_button_down() -> void:
 	
 	_message("[color=green]Test Data: Random x10 [/color]")
 
-func _on_random_1000_button_button_down() -> void:
-	if _history._history.is_empty():
+func _on_random_100_button_button_down() -> void:
+	if _history.history.is_empty():
 		_save_state("Initial State")
 	
 	for i in range(100):
@@ -316,7 +316,7 @@ func _on_random_1000_button_button_down() -> void:
 	_message("[color=green]Test Data: Random x100 [/color]")
 
 func _on_test_button_button_down() -> void:
-	if _history._history.is_empty():
+	if _history.history.is_empty():
 		_save_state("Initial State")
 	
 	for i in range(100):
