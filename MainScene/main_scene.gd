@@ -214,12 +214,12 @@ func _process(delta: float) -> void:
 
 #region Global message
 var _message_arr = []
-const MESSAGE_LIVE_TIME:float = 10.0
+const MESSAGE_LIVE_TIME:float = 60.0
 func _message(str:String):
 	print_rich(str)
 	
 	var rich = RichTextLabel.new()
-	rich.custom_minimum_size.y = 27.0
+	rich.custom_minimum_size.y = 38.0
 	rich.bbcode_enabled = true
 	rich.text = str
 	rich.mouse_filter = Control.MOUSE_FILTER_IGNORE

@@ -11,6 +11,7 @@ func _format_node_info(node: TreeNode) -> String:
 
 ## 打印整棵樹的狀態
 func _debug_tree_state(message: String = "") -> void:
+	return
 	if message:
 		MainScene.message("\n[color=yellow]" + message + "[/color]")
 	
@@ -59,7 +60,7 @@ func remove(val) -> TreeNode:
 	if !_root:
 		return null
 	
-	MainScene.message("[color=yellow]開始刪除節點 " + str(val) + "[/color]")
+	#MainScene.message("[color=yellow]開始刪除節點 " + str(val) + "[/color]")
 	_debug_tree_state("刪除前的樹狀態:")
 	
 	# 第一步：執行標準的BST刪除
@@ -70,7 +71,7 @@ func remove(val) -> TreeNode:
 	# 確保根節點是黑色
 	if _root:
 		_root.color = BLACK
-		MainScene.message("[color=green]確保根節點為黑色[/color]")
+		#MainScene.message("[color=green]確保根節點為黑色[/color]")
 	
 	_debug_tree_state("最終的樹狀態:")
 	
@@ -79,25 +80,25 @@ func remove(val) -> TreeNode:
 ## 在二叉搜索樹中執行刪除操作
 func _remove_BST(node:TreeNode, val:float) -> TreeNode:
 	if !node:
-		MainScene.message("[color=red]節點不存在[/color]")
+		#MainScene.message("[color=red]節點不存在[/color]")
 		return null
 	
-	MainScene.message("[color=cyan]正在搜索節點 " + str(val) + "，當前節點值=" + str(node.val) + "[/color]")
+	#MainScene.message("[color=cyan]正在搜索節點 " + str(val) + "，當前節點值=" + str(node.val) + "[/color]")
 	
 	# 找到要刪除的節點
 	if val == node.val:
-		MainScene.message("[color=green]找到目標節點 " + str(val) + "[/color]")
+		#MainScene.message("[color=green]找到目標節點 " + str(val) + "[/color]")
 		# 如果是葉子節點或只有一個子節點
 		if !node.L or !node.R:
-			MainScene.message("[color=yellow]節點是葉子或只有一個子節點，進入簡單刪除處理[/color]")
+			#MainScene.message("[color=yellow]節點是葉子或只有一個子節點，進入簡單刪除處理[/color]")
 			var result = _handle_simple_delete(node)
 			_debug_tree_state("簡單刪除後的樹狀態:")
 			return result
 		
 		# 如果有兩個子節點，找到中序後繼節點
-		MainScene.message("[color=yellow]節點有兩個子節點，尋找後繼節點[/color]")
+		#MainScene.message("[color=yellow]節點有兩個子節點，尋找後繼節點[/color]")
 		var successor = _find_min(node.R)
-		MainScene.message("[color=cyan]找到後繼節點：" + str(successor.val) + "[/color]")
+		#MainScene.message("[color=cyan]找到後繼節點：" + str(successor.val) + "[/color]")
 		
 		node.val = successor.val
 		node.R = _remove_BST(node.R, successor.val)
@@ -108,7 +109,7 @@ func _remove_BST(node:TreeNode, val:float) -> TreeNode:
 		
 	# 在左子樹中搜索
 	elif val < node.val:
-		MainScene.message("[color=cyan]目標值小於當前節點，往左子樹搜索[/color]")
+		#MainScene.message("[color=cyan]目標值小於當前節點，往左子樹搜索[/color]")
 		if node.L:
 			var new_left = _remove_BST(node.L, val)
 			node.L = new_left
@@ -117,7 +118,7 @@ func _remove_BST(node:TreeNode, val:float) -> TreeNode:
 	
 	# 在右子樹中搜索
 	else:
-		MainScene.message("[color=cyan]目標值大於當前節點，往右子樹搜索[/color]")
+		#MainScene.message("[color=cyan]目標值大於當前節點，往右子樹搜索[/color]")
 		if node.R:
 			var new_right = _remove_BST(node.R, val)
 			node.R = new_right
