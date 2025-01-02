@@ -284,23 +284,24 @@ func _find_min(node:TreeNode) -> TreeNode:
 
 ## 左旋操作
 func _rotate_left(node:TreeNode):
-	var right_child = node.R
-	node.R = right_child.L
-	
-	if right_child.L:
-		right_child.L.P = node
-	
-	right_child.P = node.P
-	
-	if !node.P:
-		_root = right_child
-	elif node == node.P.L:
-		node.P.L = right_child
-	else:
-		node.P.R = right_child
-	
-	right_child.L = node
-	node.P = right_child
+	TreeInsert.new().rotL(node)
+	#var right_child = node.R
+	#node.R = right_child.L
+	#
+	#if right_child.L:
+		#right_child.L.P = node
+	#
+	#right_child.P = node.P
+	#
+	#if !node.P:
+		#_root = right_child
+	#elif node == node.P.L:
+		#node.P.L = right_child
+	#else:
+		#node.P.R = right_child
+	#
+	#right_child.L = node
+	#node.P = right_child
 
 ## 右旋轉操作
 func _rotate_right(node:TreeNode) -> void:

@@ -63,7 +63,7 @@ offset_bottom = 1052.0
 color = Color(0.384314, 0.572549, 0.941176, 1)
 
 [node name="Label" type="Label" parent="BackGround"]
-anchors_preset = -1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 274.0
