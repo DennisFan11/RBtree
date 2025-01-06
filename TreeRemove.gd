@@ -1,7 +1,7 @@
 class_name TreeRemove extends TreeCRUD
 
 ## 保存對當前樹根節點的引用
-static var _root:TreeNode
+#static var _root:TreeNode
 
 ## 格式化節點信息
 func _format_node_info(node: TreeNode) -> String:
@@ -93,6 +93,7 @@ func _remove_BST(node:TreeNode, val:float) -> TreeNode:
 			#MainScene.message("[color=yellow]節點是葉子或只有一個子節點，進入簡單刪除處理[/color]")
 			var result = _handle_simple_delete(node)
 			_debug_tree_state("簡單刪除後的樹狀態:")
+			_delete_treeNode(node)
 			return result
 		
 		# 如果有兩個子節點，找到中序後繼節點
@@ -104,8 +105,9 @@ func _remove_BST(node:TreeNode, val:float) -> TreeNode:
 		node.R = _remove_BST(node.R, successor.val)
 		if node.R:
 			node.R.P = node
-			
+		
 		_debug_tree_state("後繼節點處理後的樹狀態:")
+		_delete_treeNode(node)
 		
 	# 在左子樹中搜索
 	elif val < node.val:
@@ -147,7 +149,7 @@ func _handle_simple_delete(node:TreeNode) -> TreeNode:
 			node.P.L = child
 		elif is_right_child(node):
 			node.P.R = child
-		_delete_treeNode(node)
+		
 		return child
 	
 	# 如果是黑色節點且有一個紅色子節點
@@ -227,10 +229,10 @@ func _handle_red_sibling(node:TreeNode, sibling:TreeNode):
 	
 	if is_left_child(node):
 		MainScene.message("[color=cyan]執行左旋[/color]")
-		_rotate_left(node.P)
+		_rotate_left(node)
 	else:
 		MainScene.message("[color=cyan]執行右旋[/color]")
-		_rotate_right(node.P)
+		_rotate_right(node)
 
 ## 處理黑色兄弟節點且有紅色子節點的情況
 func _handle_black_sibling_with_red_child(node:TreeNode, sibling:TreeNode):
@@ -249,10 +251,10 @@ func _handle_black_sibling_with_red_child(node:TreeNode, sibling:TreeNode):
 		
 		if is_left:
 			MainScene.message("[color=cyan]執行左旋[/color]")
-			_rotate_left(node.P)
+			_rotate_left(node)
 		else:
 			MainScene.message("[color=cyan]執行右旋[/color]")
-			_rotate_right(node.P)
+			_rotate_right(node)
 	elif near_child and near_child.color == RED:
 		MainScene.message("[color=cyan]近側有紅色子節點[/color]")
 		near_child.color = node.P.color
@@ -261,11 +263,11 @@ func _handle_black_sibling_with_red_child(node:TreeNode, sibling:TreeNode):
 		if is_left:
 			MainScene.message("[color=cyan]執行右旋後左旋[/color]")
 			_rotate_right(sibling)
-			_rotate_left(node.P)
+			_rotate_left(node)
 		else:
 			MainScene.message("[color=cyan]執行左旋後右旋[/color]")
 			_rotate_left(sibling)
-			_rotate_right(node.P)
+			_rotate_right(node)
 
 ## 獲取兄弟節點
 func get_sibling(node:TreeNode) -> TreeNode:
@@ -281,10 +283,13 @@ func _find_min(node:TreeNode) -> TreeNode:
 	while current and current.L:
 		current = current.L
 	return current
-
-## 左旋操作
+#
+### 左旋操作
 func _rotate_left(node:TreeNode):
-	TreeInsert.new().rotL(node)
+	#var instance := TreeInsert .new()
+	
+	rotL(node)
+	#
 	#var right_child = node.R
 	#node.R = right_child.L
 	#
@@ -305,40 +310,42 @@ func _rotate_left(node:TreeNode):
 
 ## 右旋轉操作
 func _rotate_right(node:TreeNode) -> void:
-	_debug_tree_state("右旋轉前的樹狀態:")
-	MainScene.message("[color=cyan]開始右旋轉操作 - 當前節點值=" + str(node.val) + "[/color]")
-	
-	if !node or !node.L:
-		MainScene.message("[color=red]錯誤：無法執行右旋轉，節點或左子節點為空[/color]")
-		return
-		
-	var left_child = node.L
-	MainScene.message("步驟1: 保存左子節點 " + str(left_child.val))
-	
-	# 更新父節點關係
-	left_child.P = node.P
-	if node.P:
-		if node == node.P.L:
-			node.P.L = left_child
-			MainScene.message("步驟2.1: 更新父節點的左子為 " + str(left_child.val))
-		else:
-			node.P.R = left_child
-			MainScene.message("步驟2.2: 更新父節點的右子為 " + str(left_child.val))
-	else:
-		_root = left_child
-		MainScene.message("步驟2.3: 更新根節點為 " + str(left_child.val))
-	
-	# 移動子樹
-	node.L = left_child.R
-	if left_child.R:
-		left_child.R.P = node
-		MainScene.message("步驟3: 移動右子樹，新父節點為 " + str(node.val))
-	else:
-		MainScene.message("步驟3: 右子樹為空，無需移動")
-	
-	# 連接節點
-	left_child.R = node
-	node.P = left_child
-	MainScene.message("步驟4: 完成節點連接")
-	
-	_debug_tree_state("右旋轉後的樹狀態:")
+	#var instance := TreeInsert .new()
+	rotR(node)
+	#_debug_tree_state("右旋轉前的樹狀態:")
+	#MainScene.message("[color=cyan]開始右旋轉操作 - 當前節點值=" + str(node.val) + "[/color]")
+	#
+	#if !node or !node.L:
+		#MainScene.message("[color=red]錯誤：無法執行右旋轉，節點或左子節點為空[/color]")
+		#return
+		#
+	#var left_child = node.L
+	#MainScene.message("步驟1: 保存左子節點 " + str(left_child.val))
+	#
+	## 更新父節點關係
+	#left_child.P = node.P
+	#if node.P:
+		#if node == node.P.L:
+			#node.P.L = left_child
+			#MainScene.message("步驟2.1: 更新父節點的左子為 " + str(left_child.val))
+		#else:
+			#node.P.R = left_child
+			#MainScene.message("步驟2.2: 更新父節點的右子為 " + str(left_child.val))
+	#else:
+		#_root = left_child
+		#MainScene.message("步驟2.3: 更新根節點為 " + str(left_child.val))
+	#
+	## 移動子樹
+	#node.L = left_child.R
+	#if left_child.R:
+		#left_child.R.P = node
+		#MainScene.message("步驟3: 移動右子樹，新父節點為 " + str(node.val))
+	#else:
+		#MainScene.message("步驟3: 右子樹為空，無需移動")
+	#
+	## 連接節點
+	#left_child.R = node
+	#node.P = left_child
+	#MainScene.message("步驟4: 完成節點連接")
+	#
+	#_debug_tree_state("右旋轉後的樹狀態:")

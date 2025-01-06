@@ -7,7 +7,7 @@ func insert(root:TreeNode, insert_val:float)-> TreeNode:
 	var new_node = _insert_BST(root, insert_val)
 	return _root
 
-static var _root:TreeNode
+
 
 func _insert_BST(node:TreeNode, val:float) -> TreeNode:
 	if node == null:
@@ -71,51 +71,6 @@ func _case3(node:TreeNode):
 	else:
 		rotL(node.P)
 
-func rotL(P:TreeNode):
-	MainScene.message("[color=yellow]L rotate ![/color]")
-	var gp:TreeNode = P.PP
-	var fa:TreeNode = P.P
-	var y:TreeNode = P.L
 
-	if y:
-		y.P = fa
-	fa.R = y
-	
-	P.L = fa
-	fa.P = P
-
-	if gp:
-		if gp.L == fa:
-			gp.L = P
-		else:
-			gp.R = P
-	P.P = gp
-	
-	if _root == fa:
-		_root = P
-
-
-func rotR(P:TreeNode):
-	MainScene.message("[color=yellow]R rotate ![/color]")
-	var gp:TreeNode = P.PP
-	var fa:TreeNode = P.P
-	var y:TreeNode = P.R
-
-	if y:
-		y.P = fa
-	fa.L = y
-	
-	P.R = fa
-	fa.P = P
-
-	if gp:
-		if gp.L == fa:
-			gp.L = P
-		else:
-			gp.R = P
-	P.P = gp
-	
-	if _root == fa:
-		_root = P
 
 #endregion

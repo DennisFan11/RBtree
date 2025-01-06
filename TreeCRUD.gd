@@ -1,5 +1,5 @@
 class_name TreeCRUD extends RefCounted
-
+var _root:TreeNode
 #region Tool Zone
 enum {BLACK, RED, DOUBLE_BLACK}
 func _make_treeNode(val)-> TreeNode: # NOTE 建立節點
@@ -26,7 +26,54 @@ func get_uncle(node:TreeNode)-> TreeNode: # NOTE 取得叔叔節點
 		else:
 			return node.P.P.L
 	return null
+func rotL(P:TreeNode):
+	MainScene.message("[color=yellow]L rotate ![/color]")
+	var gp:TreeNode = P.PP
+	var fa:TreeNode = P.P
+	var y:TreeNode = P.L
+	assert(is_instance_valid(fa), "null instance on rot")
+	if y:
+		y.P = fa
+	fa.R = y
+	
+	P.L = fa
+	fa.P = P
 
+	if gp:
+		if gp.L == fa:
+			gp.L = P
+		else:
+			gp.R = P
+	P.P = gp
+	
+	if _root == fa:
+		_root = P
+
+
+func rotR(P:TreeNode):
+	MainScene.message("[color=yellow]R rotate ![/color]")
+	var gp:TreeNode = P.PP
+	var fa:TreeNode = P.P
+	var y:TreeNode = P.R
+	assert(is_instance_valid(fa), "null instance on rot")
+
+
+	if y:
+		y.P = fa
+	fa.L = y
+	
+	P.R = fa
+	fa.P = P
+
+	if gp:
+		if gp.L == fa:
+			gp.L = P
+		else:
+			gp.R = P
+	P.P = gp
+	
+	if _root == fa:
+		_root = P
 #endregion
 
 
