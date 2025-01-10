@@ -10,6 +10,10 @@ func _make_treeNode(val)-> TreeNode: # NOTE 建立節點
 	return node
 
 func _delete_treeNode(node:TreeNode): # NOTE 刪除節點
+	if is_left_child(node):
+		node.P.L = null
+	elif is_right_child(node):
+		node.P.R = null
 	node.queue_free()
 	#node.L = null
 	#node.R = null
