@@ -37,8 +37,10 @@ func delete_one_child(p):
 
 	# 根節點且無子節點的情況
 	if p.P == null and p.L == null and p.R == null:
-		p = null
-		_root = p
+		#p = null
+		#_root = p
+		_delete_treeNode(_root)
+		_root = null
 		return
 #跟維基不一樣
 	if child == null:
