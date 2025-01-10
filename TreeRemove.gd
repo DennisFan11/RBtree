@@ -33,7 +33,6 @@ func delete_child(p, data):
 		return false
 
 func delete_one_child(p):
-	#print(p.L.val, p.R.val)
 	var child:TreeNode = p.R if p.L == null else p.L
 
 	# 根節點且無子節點的情況
@@ -42,13 +41,13 @@ func delete_one_child(p):
 		_root = p
 		return
 #跟維基不一樣
-	#if child == null:
-		#if get_color(p) == RED:
-			#_delete_treeNode(p)
-			#return
-		#delete_case(p)
-		#_delete_treeNode(p)
-		#return
+	if child == null:
+		if get_color(p) == RED:
+			_delete_treeNode(p)
+			return
+		delete_case(p)
+		_delete_treeNode(p)
+		return
 #到這裡
 	# 根節點有一個子節點的情況
 	if p.P == null:
@@ -73,6 +72,7 @@ func delete_one_child(p):
 		if get_color(child) == RED:
 			child.color = BLACK
 		else:
+			pass
 			delete_case(child)
 
 	_delete_treeNode(p)
@@ -87,9 +87,9 @@ func delete_case(p):
 		p.P.color = RED
 		sibling(p).color = BLACK
 		if p == p.P.L:
-			rotL(p.P)
+			rotL(p.P.R)
 		else:
-			rotR(p.P)
+			rotR(p.P.L)
 
 	if is_instance_valid(sibling(p)) and get_color(p.P) == BLACK and get_color(sibling(p)) == BLACK and \
 		get_color(sibling(p).L) == BLACK and get_color(sibling(p).R) == BLACK:
