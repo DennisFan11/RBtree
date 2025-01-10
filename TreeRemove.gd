@@ -25,11 +25,8 @@ func delete_child(p, data):
 		if p.R == null:
 			delete_one_child(p)
 			return true
-		print(p.R.val)
 		var smallest = get_smallest_child(p.R)
-		var temp = p.val
-		p.val = smallest.val
-		smallest.val = temp
+		swap(p, smallest)
 		delete_one_child(smallest)
 		return true
 	else:
@@ -37,7 +34,7 @@ func delete_child(p, data):
 
 func delete_one_child(p):
 	#print(p.L.val, p.R.val)
-	var child:TreeNode = p.L if p.L == null else p.R
+	var child:TreeNode = p.R if p.L == null else p.L
 
 	# 根節點且無子節點的情況
 	if p.P == null and p.L == null and p.R == null:
@@ -45,7 +42,10 @@ func delete_one_child(p):
 		_root = p
 		return
 #跟維基不一樣
-	if child == null: 
+	if child == null:
+		if p.color == RED:
+			_delete_treeNode(p)
+			return
 		delete_case(p)
 		_delete_treeNode(p)
 		return
@@ -82,7 +82,7 @@ func delete_case(p):
 		p.color = BLACK
 		return
 		
-	if sibling(p).color == RED:
+	if is_instance_valid(sibling(p)) and sibling(p).color == RED:
 		MainScene.message("[color=yellow]1[/color]")
 		p.P.color = RED
 		sibling(p).color = BLACK
@@ -91,7 +91,7 @@ func delete_case(p):
 		else:
 			rotR(p.P)
 
-	if p.P.color == BLACK and sibling(p).color == BLACK and \
+	if is_instance_valid(sibling(p)) and p.P.color == BLACK and sibling(p).color == BLACK and \
 		sibling(p).L.color == BLACK and sibling(p).R.color == BLACK:
 		sibling(p).color = RED
 		delete_case(p.P)
@@ -174,7 +174,14 @@ func rotR(P:TreeNode):
 		_root = P
 
 func sibling(p):
+	if !is_instance_valid(p):
+		return null
 	if p.P.L == p:
 		return p.P.R
 	elif p.P.R == p:
 		return p.P.L
+
+func swap(p, p2):
+	var temp = p.val
+	p.val = p2.val
+	p2.val = temp
