@@ -42,13 +42,13 @@ func delete_one_child(p):
 		_root = p
 		return
 #跟維基不一樣
-	if child == null:
-		if p.color == RED:
-			_delete_treeNode(p)
-			return
-		delete_case(p)
-		_delete_treeNode(p)
-		return
+	#if child == null:
+		#if get_color(p) == RED:
+			#_delete_treeNode(p)
+			#return
+		#delete_case(p)
+		#_delete_treeNode(p)
+		#return
 #到這裡
 	# 根節點有一個子節點的情況
 	if p.P == null:
@@ -69,11 +69,11 @@ func delete_one_child(p):
 	#到這裡
 
 	# 如果刪除的節點是黑色
-	if p.color == BLACK:
-		if child.color == RED:
+	if get_color(p) == BLACK:
+		if get_color(child) == RED:
 			child.color = BLACK
 		else:
-			delete_case(p)
+			delete_case(child)
 
 	_delete_treeNode(p)
 
@@ -82,7 +82,7 @@ func delete_case(p):
 		p.color = BLACK
 		return
 		
-	if is_instance_valid(sibling(p)) and sibling(p).color == RED:
+	if is_instance_valid(sibling(p)) and get_color(sibling(p)) == RED:
 		MainScene.message("[color=yellow]1[/color]")
 		p.P.color = RED
 		sibling(p).color = BLACK
@@ -91,28 +91,28 @@ func delete_case(p):
 		else:
 			rotR(p.P)
 
-	if is_instance_valid(sibling(p)) and p.P.color == BLACK and sibling(p).color == BLACK and \
-		sibling(p).L.color == BLACK and sibling(p).R.color == BLACK:
+	if is_instance_valid(sibling(p)) and get_color(p.P) == BLACK and get_color(sibling(p)) == BLACK and \
+		get_color(sibling(p).L) == BLACK and get_color(sibling(p).R) == BLACK:
 		sibling(p).color = RED
 		delete_case(p.P)
-	elif p.P.color == RED and sibling(p).color == BLACK and \
-			sibling(p).L.color == BLACK and sibling(p).R.color == BLACK:
+	elif get_color(p.P) == RED and get_color(sibling(p)) == BLACK and \
+			get_color(sibling(p).L) == BLACK and get_color(sibling(p).R) == BLACK:
 		sibling(p).color = RED
 		p.P.color = BLACK
 	else:
-		if sibling(p).color == BLACK:
-			if p == p.P.L and sibling(p).L.color == RED and \
-				sibling(p).R.color == BLACK:
+		if get_color(sibling(p)) == BLACK:
+			if p == p.P.L and get_color(sibling(p).L) == RED and \
+				get_color(sibling(p).R) == BLACK:
 				sibling(p).color = RED
 				sibling(p).L.color = BLACK
 				rotR(sibling(p).L)
-			elif p == p.P.R and sibling(p).L.color == BLACK and \
-					sibling(p).R.color == RED:
+			elif p == p.P.R and get_color(sibling(p).L) == BLACK and \
+					get_color(sibling(p).R) == RED:
 				sibling(p).color = RED
 				sibling(p).R.color = BLACK
 				rotL(sibling(p).R)
 
-		sibling(p).color = p.P.color
+		if sibling(p): sibling(p).color = p.P.color
 		p.P.color = BLACK
 		if p == p.P.L:
 			sibling(p).R.color = BLACK
@@ -185,3 +185,9 @@ func swap(p, p2):
 	var temp = p.val
 	p.val = p2.val
 	p2.val = temp
+
+func get_color(p):
+	if p == null:
+		return BLACK
+	else:
+		return p.color
