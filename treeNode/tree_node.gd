@@ -59,13 +59,13 @@ func _process(delta: float) -> void:
 		
 	_visible_update()
 	position = position.lerp(Vector2(H_SPACE*_xid, V_SPACE*_deepth), LERP_SPEED*delta)
-	if L:
+	if is_instance_valid(L):
 		_LL.points = [_get_l_point(), to_local(L._get_self_point())]
 		_LL.default_color = _color_map[L.color]
 	else:
 		_LL.points = []
 		
-	if R:
+	if is_instance_valid(R):
 		_RR.points = [_get_r_point(), to_local(R._get_self_point())]
 		_RR.default_color = _color_map[R.color]
 	else:
