@@ -8,8 +8,14 @@ func _make_treeNode(val)-> TreeNode: # NOTE 建立節點
 	node.val = val
 	node.color = RED # 初始化為red
 	return node
+func _make_fake()-> FakeNode:
+	return FakeNode.new()
 
 func _delete_treeNode(node:TreeNode): # NOTE 刪除節點
+	if is_left_child(node):
+		node.P.L = null
+	elif is_right_child(node):
+		node.P.R = null
 	node.queue_free()
 	#node.L = null
 	#node.R = null

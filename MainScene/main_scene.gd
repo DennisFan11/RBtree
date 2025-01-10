@@ -191,13 +191,13 @@ func _deep_count(node:TreeNode, last_deepth:int)-> int: ## 設定深度, xid
 	var curr_deepth = last_deepth+1
 	node._deepth = curr_deepth
 	#print(node.val)
-	if node.L:
+	if node.L and node.L is not FakeNode:
 		_deep_count(node.L, curr_deepth)
 	
 	__xid += 1
 	node._xid = __xid
 	
-	if node.R:
+	if node.R and node.R is not FakeNode:
 		_deep_count(node.R, curr_deepth)
 	return curr_deepth
 

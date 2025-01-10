@@ -1,6 +1,13 @@
 class_name TreeNode extends Node2D
 enum {BLACK, RED, DOUBLE_BLACK}
-var color:int
+var color:int:
+	set(new): _color = new
+	get: return _get_color()
+var _color:int
+func _get_color():
+	return _color
+
+
 var _val:float
 var val:float:
 	set(new):
@@ -44,6 +51,7 @@ static func create() -> TreeNode:
 	var scene = load("res://treeNode/treeNode.tscn")
 	return scene.instantiate()
 
+
 func _get_self_point()-> Vector2:
 	return %SelfPoint.global_position
 
@@ -59,13 +67,13 @@ func _process(delta: float) -> void:
 		
 	_visible_update()
 	position = position.lerp(Vector2(H_SPACE*_xid, V_SPACE*_deepth), LERP_SPEED*delta)
-	if is_instance_valid(L):
+	if is_instance_valid(L) and L is not FakeNode:
 		_LL.points = [_get_l_point(), to_local(L._get_self_point())]
 		_LL.default_color = _color_map[L.color]
 	else:
 		_LL.points = []
 		
-	if is_instance_valid(R):
+	if is_instance_valid(R) and R is not FakeNode:
 		_RR.points = [_get_r_point(), to_local(R._get_self_point())]
 		_RR.default_color = _color_map[R.color]
 	else:
